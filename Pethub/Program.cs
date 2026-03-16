@@ -1,7 +1,12 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Pethub.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<PethubContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PethubContext") ?? throw new InvalidOperationException("Connection string 'PethubContext' not found.")));
 
 var app = builder.Build();
 
