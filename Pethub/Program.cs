@@ -27,5 +27,5 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
-
+app.MapGet("/", () => Results.Redirect("/Login")); 
 app.Run();

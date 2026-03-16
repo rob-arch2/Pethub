@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Pethub.Pages
 {
-    public class IndexModel : PageModel
+    public class LoginModel : PageModel
     {
         [BindProperty]
         public string Email { get; set; }
@@ -14,17 +14,13 @@ namespace Pethub.Pages
         [BindProperty]
         public bool RememberMe { get; set; }
 
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<LoginModel> _logger;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public LoginModel(ILogger<LoginModel> logger)
         {
             _logger = logger;
         }
 
-        public void OnGet()
-        {
-
-        }
         //public IActionResult OnGet()
         //{
         //    return RedirectToPage("/Register");
