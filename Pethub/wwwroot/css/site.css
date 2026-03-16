@@ -1,0 +1,160 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #e8dfc8;
+}
+
+
+/* NAVBAR */
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 40px;
+    border-bottom: 2px solid #000;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+    .logo img {
+        width: 30px;
+        margin-right: 8px;
+    }
+
+.menu {
+    flex: 1;
+    text-align: center;
+}
+
+    .menu a {
+        margin: 0 15px;
+        text-decoration: none;
+        color: black;
+    }
+
+.nav-buttons a {
+    text-decoration: none;
+}
+
+.login-btn {
+    background: #c97b67;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: white;
+    margin-right: 10px;
+}
+
+.register-btn {
+    background: #f2a79a;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: white;
+}
+
+
+/* MAIN LAYOUT */
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 120px;
+    height: 85vh;
+}
+
+
+/* DOG */
+
+.dog {
+    position: relative;
+}
+
+    .dog img {
+        width: 700px;
+/*        filter: drop-shadow(0 0 40px rgba(255,200,100,0.3)); */
+    }
+
+
+/* LOGIN FORM */
+
+.login-box {
+    width: 380px;
+}
+
+    .login-box h2 {
+        text-align: center;
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+
+
+/* INPUTS */
+
+.input-box {
+    display: flex;
+    align-items: center;
+    background: #eeeeee;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+    .input-box span {
+        margin-right: 10px;
+    }
+
+    .input-box input {
+        border: none;
+        background: none;
+        outline: none;
+        width: 100%;
+    }
+
+
+/* REMEMBER */
+
+.remember {
+    margin: 10px 0 20px 0;
+}
+
+
+/* BUTTON */
+
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background: #c97b67;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    .login-button:hover {
+        background: #b46a58;
+    }
+
+
+/* LINKS */
+
+.forgot {
+    text-align: center;
+    color: #c97b67;
+    margin-top: 15px;
+}
+
+.register {
+    text-align: center;
+}
+
+    .register a {
+        color: black;
+        font-weight: bold;
+    }

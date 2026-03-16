@@ -1,0 +1,87 @@
+﻿@page
+@model Pethub.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+}
+<link rel="stylesheet" href="~/css/regis.css">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+
+        <div class="logo">
+            <img src="~/images/paws1.png" alt="paw"/>
+            <span>PETHUB</span>
+        </div>
+
+        <div class="menu">
+            <a asp-page="/Index">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </div>
+
+        <div class="nav-buttons">
+            <a asp-page="/Index" class="login-btn">Login</a>
+            <a asp-page="/Register" class="register-btn">Register</a>
+        </div>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+        <!-- REGISTER FORM -->
+        <div class="registerForm">
+
+            <h2>REGISTER</h2>
+
+            <form method="post">
+
+                <input asp-for="FullName" placeholder="Full name" />
+
+                <div class="row">
+
+                    <input asp-for="ContactNumber" placeholder="Contact Number" />
+
+                    <select asp-for="Gender">
+                        <option value="">Gender</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                    </select>
+
+                </div>
+
+                <div class="row">
+
+                    <input asp-for="BirthDate" type="date" />
+
+                    <input asp-for="Age" type="number" placeholder="Age" />
+
+                </div>
+
+                <input asp-for="Email" placeholder="Email address" />
+
+                <input asp-for="Password" type="password" placeholder="Create Password" />
+
+                <input asp-for="ConfirmPassword" type="password" placeholder="Re-enter Password" />
+
+                <button type="submit" class="mainBtn">Register</button>
+
+            </form>
+
+            <p class="loginText">
+                Already have an account?
+                <a asp-page="/Login">Login</a>
+            </p>
+
+        </div>
+
+
+        <!-- CAT IMAGE -->
+        <div class="catSide">
+            <img src="~/images/cat.png" class="catImage" alt="cat">
+        </div>
+
+    </div>

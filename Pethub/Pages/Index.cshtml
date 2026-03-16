@@ -1,0 +1,75 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<link rel="stylesheet" href="~/css/site.css">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <div class="logo">
+        <img src="~/images/paws1.png" alt="paw">
+        <span>PETHUB</span>
+    </div>
+
+    <div class="menu">
+        <a href="/">Home</a>
+        <a href="/About">About</a>
+        <a href="/Services">Services</a>
+        <a href="/Contact">Contact</a>
+    </div>
+
+    <div class="nav-buttons">
+        <a asp-page="/Index" class="login-btn">Login</a>
+        <a asp-page="/Register" class="register-btn">Register</a>
+    </div>
+
+</nav>
+
+
+<!-- MAIN CONTENT -->
+<div class="login-container">
+
+    <!-- DOG -->
+    <div class="dog">
+        <img src="~/images/dog.png" alt="Dog">
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="login-box">
+
+        <h2>LOGIN</h2>
+
+        <form>
+
+            <div class="input-box">
+                <span>📧</span>
+                <input type="email" placeholder="Email address" required>
+            </div>
+
+            <div class="input-box">
+                <span>🔒</span>
+                <input type="password" placeholder="Password" required>
+            </div>
+
+            <div class="remember">
+                <input type="checkbox">
+                <label>Remember me?</label>
+            </div>
+
+            <button class="login-button">Login</button>
+
+            <p class="forgot">Forgot your password?</p>
+
+            <p class="register">
+                Don't have an account?
+                <a href="/Register">Register</a>
+            </p>
+
+        </form>
+
+    </div>
+
+</div>
