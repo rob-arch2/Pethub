@@ -1,12 +1,11 @@
 ﻿body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(90deg,#1c1c1c,#5a481a);
+    background: linear-gradient(90deg, #1c1c1c, #5a481a);
     color: white;
 }
 
 /* NAVBAR */
-
 .navbar {
     display: flex;
     align-items: center;
@@ -15,8 +14,6 @@
     background: #e6dfc8;
     border-bottom: 2px solid #000;
 }
-
-/* LOGO */
 
 .logo {
     display: flex;
@@ -31,8 +28,6 @@
         margin-right: 8px;
     }
 
-/* MENU */
-
 .menu {
     flex: 1;
     text-align: center;
@@ -44,8 +39,6 @@
         color: black;
         font-size: 16px;
     }
-
-/* BUTTONS */
 
 .nav-buttons a {
     text-decoration: none;
@@ -65,8 +58,8 @@
     border-radius: 6px;
     color: white;
 }
-/* MAIN LAYOUT */
 
+/* MAIN LAYOUT */
 .main {
     display: flex;
     justify-content: space-between;
@@ -76,7 +69,6 @@
 }
 
 /* FORM */
-
 .registerForm {
     width: 420px;
 }
@@ -87,9 +79,8 @@
         margin-bottom: 30px;
     }
 
-    /* INPUTS */
-
-    .registerForm input,
+    /* STANDARD INPUTS (non-password) */
+    .registerForm input:not([type="password"]),
     .registerForm select {
         width: 100%;
         padding: 14px;
@@ -103,14 +94,43 @@
     }
 
 /* INPUT ROW */
-
 .row {
     display: flex;
     gap: 12px;
 }
 
-/* BUTTON */
+/* PASSWORD FIELD WRAPPER */
+.password-field {
+    position: relative;
+    margin-bottom: 15px;
+}
 
+    .password-field input[type="password"],
+    .password-field input[type="text"] {
+        width: 100%;
+        padding: 14px 44px 14px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: white;
+        color: dimgrey;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+.reg-toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+}
+
+/* SUBMIT BUTTON */
 .mainBtn {
     width: 100%;
     padding: 14px;
@@ -128,8 +148,7 @@
         background: #b46a58;
     }
 
-/* LOGIN TEXT */
-
+/* LOGIN LINK */
 .loginText {
     margin-top: 20px;
     font-size: 14px;
@@ -142,10 +161,8 @@
     }
 
 /* CAT IMAGE */
-
 .catSide {
     width: 700px;
-/*    display: flex;*/
     justify-content: center;
 }
 
@@ -154,9 +171,7 @@
 }
 
 /* RESPONSIVE */
-
-@media(max-width:1000px) {
-
+@media (max-width: 1000px) {
     .main {
         flex-direction: column;
         text-align: center;

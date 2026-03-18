@@ -65,7 +65,6 @@ namespace Pethub
             if (!ModelState.IsValid)
                 return Page();
 
-            // Check if email already exists
             bool emailExists = await _context.Account.AnyAsync(a => a.Email == Email);
             if (emailExists)
             {
@@ -73,15 +72,13 @@ namespace Pethub
                 return Page();
             }
 
-            // Check if username already exists
             bool usernameExists = await _context.Account.AnyAsync(a => a.Username == FullName);
             if (usernameExists)
             {
-                ModelState.AddModelError("FullName", "This username is already taken.");
+                ModelState.AddModelError("FullName", "This name is already taken.");
                 return Page();
             }
 
-            // Reject underage users
             var today = DateTime.Today;
             int age = today.Year - BirthDate.Year;
             if (BirthDate.Date > today.AddYears(-age)) age--;
@@ -91,7 +88,6 @@ namespace Pethub
                 return Page();
             }
 
-            // Hash password
             string hashedPassword = HashPassword(Password);
 
             var account = new Account
@@ -100,7 +96,7 @@ namespace Pethub
                 Password = hashedPassword,
                 Email = Email,
                 Gender = Gender,
-                Address = "N/A", // Address not in register form; set default
+                Address = "Not Specified",
                 Contact = ContactNumber,
                 Birthday = BirthDate,
                 Age = age
@@ -108,6 +104,8 @@ namespace Pethub
 
             _context.Account.Add(account);
             await _context.SaveChangesAsync();
+
+            TempData["ToastSuccess"] = "Registration successful! Welcome to PetHub. Please log in.";
 
             return RedirectToPage("/Login");
         }

@@ -50,11 +50,12 @@ namespace Pethub.Pages
                 return Page();
             }
 
-            // Store session
             HttpContext.Session.SetInt32("AccountId", account.Id);
             HttpContext.Session.SetString("AccountUsername", account.Username);
 
-            return RedirectToPage("/AccountManagement/Index");
+            TempData["ToastSuccess"] = $"Welcome back, {account.Username}! You are now logged in.";
+
+            return RedirectToPage("/Landing");
         }
 
         private string HashPassword(string password)

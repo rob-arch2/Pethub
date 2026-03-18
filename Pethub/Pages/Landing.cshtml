@@ -1,0 +1,92 @@
+﻿@page
+@model Pethub.Pages.LandingModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="landing-welcome">
+    <div class="landing-card">
+        <div class="landing-icon">🐾</div>
+        <p class="landing-sub">You're now logged in to PetHub. Use the navigation above to get started.</p>
+
+        <div class="landing-links">
+            <a asp-page="/AccountManagement/Index" class="landing-btn">
+                👥 Account Management
+            </a>
+        </div>
+
+        <div class="landing-note">
+            <small> More features coming soon — this page is temporary during testing.</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .landing-welcome {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+        }
+
+        .landing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 48px 56px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .landing-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        .landing-card h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2c2c2c;
+            margin-bottom: 10px;
+        }
+
+        .landing-username {
+            color: #c97b67;
+        }
+
+        .landing-sub {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+
+        .landing-links {
+            margin-bottom: 28px;
+        }
+
+        .landing-btn {
+            display: inline-block;
+            background: #c97b67;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .landing-btn:hover {
+            background: #b46a58;
+            color: white;
+        }
+
+        .landing-note {
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+}
