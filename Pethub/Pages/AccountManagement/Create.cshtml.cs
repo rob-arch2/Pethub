@@ -10,7 +10,7 @@ using Pethub.Models;
 
 namespace Pethub.Pages.AccountManagement
 {
-    public class CreateModel : PageModel
+    public class CreateModel : AdminPageModel
     {
         private readonly PethubContext _context;
 

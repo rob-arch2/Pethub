@@ -57,15 +57,35 @@
             <input asp-for="Email" placeholder="Email address" />
 
             <span asp-validation-for="Password" class="text-danger"></span>
-            <div class="password-box">
-                <input asp-for="Password" type="password" id="password" placeholder="Create Password (min 8 chars, upper+lower+number)" />
-                <button type="button" id="togglePassword" class="toggle-btn">Show</button>
+            <div class="password-field">
+                <input id="regPassword"
+                       asp-for="Password"
+                       type="password"
+                       placeholder="Create Password (min 8 chars, upper+lower+number)" />
+                <button type="button"
+                        class="reg-toggle-password"
+                        id="regPasswordToggle"
+                        onclick="togglePassword('regPassword', 'regPasswordToggle')"
+                        tabindex="-1"
+                        aria-label="Show password">
+                    Show
+                </button>
             </div>
 
             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            <div class="password-box">
-                <input asp-for="ConfirmPassword" type="password" id="confirmPassword" placeholder="Re-enter Password" />
-                <button type="button" id="toggleConfirmPassword" class="toggle-btn" onclick="togglePassword('confirmPassword','toggleConfirmPassword')">Show</button>
+            <div class="password-field">
+                <input id="regConfirmPassword"
+                       asp-for="ConfirmPassword"
+                       type="password"
+                       placeholder="Re-enter Password" />
+                <button type="button"
+                        class="reg-toggle-password"
+                        id="regConfirmPasswordToggle"
+                        onclick="togglePassword('regConfirmPassword', 'regConfirmPasswordToggle')"
+                        tabindex="-1"
+                        aria-label="Show confirm password">
+                    Show
+                </button>
             </div>
 
             <button type="submit" class="mainBtn">Register</button>
@@ -81,6 +101,7 @@
         <img src="~/images/cat.png" class="catImage" alt="cat">
     </div>
 </div>
+
 <script src="~/js/site.js"></script>
 
 @section Scripts {

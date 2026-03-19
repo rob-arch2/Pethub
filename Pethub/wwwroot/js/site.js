@@ -5,8 +5,8 @@
 
 /**
  * Toggles the visibility of a password input field.
- * @param {string} inputId - The id of the password input element.
- * @param {string} btnId - The id of the button element that triggers the toggle.
+ * @param {string} inputId - The id of the password <input> element.
+ * @param {string} btnId   - The id of the toggle <button> element.
  */
 function togglePassword(inputId, btnId) {
     const input = document.getElementById(inputId);
@@ -16,8 +16,6 @@ function togglePassword(inputId, btnId) {
 
     const isHidden = input.type === 'password';
     input.type = isHidden ? 'text' : 'password';
-
-    // Update button text only (no emojis)
     btn.textContent = isHidden ? 'Hide' : 'Show';
     btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
 }

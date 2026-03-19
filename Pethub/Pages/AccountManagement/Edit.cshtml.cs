@@ -11,7 +11,7 @@ using Pethub.Models;
 
 namespace Pethub.Pages.AccountManagement
 {
-    public class EditModel : PageModel
+    public class EditModel : AdminPageModel
     {
         private readonly PethubContext _context;
 

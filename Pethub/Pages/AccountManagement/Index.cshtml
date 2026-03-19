@@ -2,77 +2,52 @@
 @model Pethub.Pages.AccountManagement.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Account Management";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Account Management</h1>
+    <a asp-page="Create" class="btn btn-primary">+ Create New</a>
+</div>
+<hr />
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Username)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Password)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Gender)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Contact)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Birthday)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Account[0].Age)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Account) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Username)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Gender)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Contact)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Birthday)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Age)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@if (!Model.Account.Any())
+{
+    <div class="alert alert-info">No accounts found.</div>
 }
-    </tbody>
-</table>
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>Contact</th>
+                    <th>Age</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Account)
+                {
+                    <tr>
+                        <td class="text-muted small">@item.Id</td>
+                        <td class="fw-semibold">@item.Username</td>
+                        <td>@item.Email</td>
+                        <td>@item.Gender</td>
+                        <td>@item.Contact</td>
+                        <td>@item.Age</td>
+                        <td class="text-center">
+                            <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

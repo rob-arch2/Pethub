@@ -12,6 +12,9 @@ namespace Pethub.Pages
         private readonly PethubContext _context;
         private readonly ILogger<LoginModel> _logger;
 
+        private string AdminUsername = "Admin@pethub.com";
+        private string AdminPassword = "admin123";
+
         public LoginModel(PethubContext context, ILogger<LoginModel> logger)
         {
             _context = context;
@@ -39,6 +42,16 @@ namespace Pethub.Pages
                 return Page();
             }
 
+            // Hardcoded admin check — not stored in the database
+            if (Email.Trim() == AdminUsername && Password == AdminPassword)
+            {
+                HttpContext.Session.SetString("AccountRole", "Admin");
+                HttpContext.Session.SetString("AccountUsername", AdminUsername);
+                HttpContext.Session.SetInt32("AccountId", 0);
+                return RedirectToPage("/Admin/Dashboard");
+            }
+
+            // Regular user check
             string hashedPassword = HashPassword(Password);
 
             var account = await _context.Account
@@ -52,8 +65,9 @@ namespace Pethub.Pages
 
             HttpContext.Session.SetInt32("AccountId", account.Id);
             HttpContext.Session.SetString("AccountUsername", account.Username);
+            HttpContext.Session.SetString("AccountRole", "User");
 
-            TempData["ToastSuccess"] = $"Welcome back, {account.Username}! You are now logged in.";
+            TempData["ToastSuccess"] = $"Welcome back, {account.Username}!";
 
             return RedirectToPage("/Landing");
         }
