@@ -6,6 +6,7 @@ namespace Pethub.Pages.Admin
 {
     public class DashboardModel : AdminPageModel
     {
+        // Admin dashboard page model - prepares counts, percentages and recent accounts for the view
         private readonly PethubContext _context;
 
         public DashboardModel(PethubContext context)

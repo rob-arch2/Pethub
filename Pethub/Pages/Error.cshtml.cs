@@ -6,6 +6,7 @@ namespace Pethub.Pages
 {
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     [IgnoreAntiforgeryToken]
+    // Error page model - displays error details and the current request id
     public class ErrorModel : PageModel
     {
         public string? RequestId { get; set; }
