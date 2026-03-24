@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Pethub.Models
 {
-    /// <summary>
-    /// Base PageModel for all pages that require an active login session.
-    /// Inheriting this class automatically redirects unauthenticated users to /Login.
-    /// </summary>
+    // Any page that needs a logged-in user should inherit this instead of PageModel.
+    // It auto-redirects to Login if there's no active session — no need to repeat the check on every page.
     public abstract class AuthenticatedPageModel : PageModel
     {
         protected int? AccountId => HttpContext.Session.GetInt32("AccountId");
@@ -15,6 +13,7 @@ namespace Pethub.Models
 
         public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
         {
+            // No session = not logged in, send them back to Login
             if (HttpContext.Session.GetInt32("AccountId") == null)
             {
                 context.Result = RedirectToPage("/Error");

@@ -65,6 +65,7 @@ namespace Pethub
             if (!ModelState.IsValid)
                 return Page();
 
+            // Don't allow duplicate emails
             bool emailExists = await _context.Account.AnyAsync(a => a.Email == Email);
             if (emailExists)
             {
@@ -72,6 +73,7 @@ namespace Pethub
                 return Page();
             }
 
+            // Don't allow duplicate display names either
             bool usernameExists = await _context.Account.AnyAsync(a => a.Username == FullName);
             if (usernameExists)
             {
@@ -79,6 +81,7 @@ namespace Pethub
                 return Page();
             }
 
+            // Block underage registrations
             var today = DateTime.Today;
             int age = today.Year - BirthDate.Year;
             if (BirthDate.Date > today.AddYears(-age)) age--;
@@ -88,15 +91,13 @@ namespace Pethub
                 return Page();
             }
 
-            string hashedPassword = HashPassword(Password);
-
             var account = new Account
             {
                 Username = FullName,
-                Password = hashedPassword,
+                Password = HashPassword(Password),
                 Email = Email,
                 Gender = Gender,
-                Address = "Not Specified",
+                Address = "Not Specified", // Address isn't collected at registration yet
                 Contact = ContactNumber,
                 Birthday = BirthDate,
                 Age = age
@@ -105,11 +106,12 @@ namespace Pethub
             _context.Account.Add(account);
             await _context.SaveChangesAsync();
 
+            // Show a success toast on the Login page after redirect
             TempData["ToastSuccess"] = "Registration successful! Welcome to PetHub. Please log in.";
-
             return RedirectToPage("/Login");
         }
 
+        // Must match the hashing method in Login so passwords can be compared
         private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();

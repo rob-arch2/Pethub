@@ -14,7 +14,7 @@ namespace Pethub.Pages
         {
             if (HttpContext.Session.GetString("AccountRole") != "Admin")
             {
-                context.Result = RedirectToPage("/Login");
+                context.Result = RedirectToPage("/Error");
                 return;
             }
             base.OnPageHandlerExecuting(context);

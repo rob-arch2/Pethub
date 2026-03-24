@@ -55,7 +55,7 @@ namespace Pethub.Pages.Admin
             AgeGroup3 = accounts.Count(a => a.Age >= 36 && a.Age <= 50);
             AgeGroup4 = accounts.Count(a => a.Age >= 51);
 
-            // Calculate percentages here in C# — no Razor scope problems
+            // Calculate percentages
             if (TotalAccounts > 0)
             {
                 MalePercent = Math.Round((double)MaleCount / TotalAccounts * 100, 1);

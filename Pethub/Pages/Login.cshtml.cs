@@ -12,8 +12,9 @@ namespace Pethub.Pages
         private readonly PethubContext _context;
         private readonly ILogger<LoginModel> _logger;
 
-        private string AdminUsername = "Admin@pethub.com";
-        private string AdminPassword = "admin123";
+        // Admin credentials are hardcoded — the admin account doesn't exist in the database
+        private const string AdminUsername = "Admin@pethub.com";
+        private const string AdminPassword = "admin123";
 
         public LoginModel(PethubContext context, ILogger<LoginModel> logger)
         {
@@ -21,14 +22,9 @@ namespace Pethub.Pages
             _logger = logger;
         }
 
-        [BindProperty]
-        public string Email { get; set; }
-
-        [BindProperty]
-        public string Password { get; set; }
-
-        [BindProperty]
-        public bool RememberMe { get; set; }
+        [BindProperty] public string Email { get; set; }
+        [BindProperty] public string Password { get; set; }
+        [BindProperty] public bool RememberMe { get; set; }
 
         public string? ErrorMessage { get; set; }
 
@@ -42,16 +38,16 @@ namespace Pethub.Pages
                 return Page();
             }
 
-            // Hardcoded admin check — not stored in the database
+            // Check admin first before hitting the database
             if (Email.Trim() == AdminUsername && Password == AdminPassword)
             {
                 HttpContext.Session.SetString("AccountRole", "Admin");
-                HttpContext.Session.SetString("AccountUsername", AdminUsername);
-                HttpContext.Session.SetInt32("AccountId", 0);
+                HttpContext.Session.SetString("AccountUsername", "Admin");
+                HttpContext.Session.SetInt32("AccountId", 0); // 0 is the admin sentinel value
                 return RedirectToPage("/Admin/Dashboard");
             }
 
-            // Regular user check
+            // Hash what the user typed, then compare against the stored hash
             string hashedPassword = HashPassword(Password);
 
             var account = await _context.Account
@@ -63,15 +59,16 @@ namespace Pethub.Pages
                 return Page();
             }
 
+            // Store just enough in the session to identify the user on every page
             HttpContext.Session.SetInt32("AccountId", account.Id);
             HttpContext.Session.SetString("AccountUsername", account.Username);
             HttpContext.Session.SetString("AccountRole", "User");
 
             TempData["ToastSuccess"] = $"Welcome back, {account.Username}!";
-
             return RedirectToPage("/Landing");
         }
 
+        // SHA256 hash — must match how passwords are stored during registration
         private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
