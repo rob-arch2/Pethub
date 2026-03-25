@@ -1,0 +1,231 @@
+﻿/* =====================
+   FILTER BAR
+   ===================== */
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    padding: 14px 40px;
+    background: white;
+    border-bottom: 1px solid #e8e0d0;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.filter-btn {
+    padding: 7px 18px;
+    border: 2px solid #e8e0d0;
+    border-radius: 20px;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+    .filter-btn:hover {
+        border-color: #c97b67;
+        color: #c97b67;
+    }
+
+    .filter-btn.active {
+        background: #c97b67;
+        border-color: #c97b67;
+        color: white;
+    }
+
+/* =====================
+   FEED CONTAINER
+   ===================== */
+
+.feed-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 24px;
+}
+
+.feed-empty {
+    text-align: center;
+    padding: 80px 0;
+    color: #aaa;
+    font-size: 16px;
+}
+
+/* =====================
+   POSTS GRID
+   ===================== */
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* =====================
+   POST CARD
+   ===================== */
+
+.post-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+    .post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.11);
+    }
+
+/* Image */
+.post-img-wrap {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f0ebe0;
+}
+
+    .post-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+/* Body */
+.post-card-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.post-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+/* Category badges */
+.post-category-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.cat-adoption {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.cat-lost {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.cat-sale {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.cat-found {
+    background: #fce4ec;
+    color: #880e4f;
+}
+
+.post-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c97b67;
+}
+
+.post-free {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2e7d32;
+    background: #e8f5e9;
+    padding: 2px 9px;
+    border-radius: 10px;
+}
+
+.post-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1c1c1c;
+    margin: 0 0 8px;
+    line-height: 1.4;
+}
+
+.post-desc {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 12px;
+    flex: 1;
+    /* Clamp to 3 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.post-card-footer {
+    border-top: 1px solid #f0ebe0;
+    padding-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.report-btn {
+    background: none;
+    border: 1px solid #ffcdd2;
+    color: #c62828;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+    .report-btn:hover {
+        background: #ffebee;
+    }
+
+/* =====================
+   RESPONSIVE
+   ===================== */
+
+@media (max-width: 600px) {
+    .filter-bar {
+        padding: 12px 16px;
+    }
+
+    .feed-container {
+        padding: 16px 12px;
+    }
+
+    .posts-grid {
+        grid-template-columns: 1fr;
+    }
+}

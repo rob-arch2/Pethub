@@ -1,93 +1,220 @@
-﻿@* Landing page shown after login. Small placeholder while features are added. *@
-@page
+﻿@page
 @model Pethub.Pages.LandingModel
 @{
     ViewData["Title"] = "Home";
+    Layout = null;
 }
 
-<div class="landing-welcome">
-    <div class="landing-card">
-        <div class="landing-icon">🐾</div>
-        <p class="landing-sub">You're now logged in to PetHub.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PetHub — Newsfeed</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/newsfeed.css" />
+</head>
+<body>
 
-        <div class="landing-links">
-            <a asp-page="/Login" class="landing-btn">
-                Logout
-            </a>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="~/images/paws1.png" alt="paw" />
+            <span>PETHUB</span>
         </div>
+        <div class="menu">
+            <a href="/Landing" class="menu-active">Home</a>
+            <a href="/Posts/Create">Post an Ad</a>
+        </div>
+        <div class="nav-buttons">
+            <span class="username-display">@Model.AccountUsername</span>
+            <a href="/UserDashboard/Index" class="login-btn">My Profile</a>
+            <a href="/Logout" class="logout-btn">Logout</a>
+        </div>
+    </nav>
 
-        <div class="landing-note">
-            <small> More features coming soon — this page is temporary during testing.</small>
+    <!-- Toast notifications -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Category Filter Bar (DOM-driven, no page reload) -->
+    <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="Adoption">🐶 Adoption</button>
+        <button class="filter-btn" data-filter="Lost Pet">🔍 Lost Pet</button>
+        <button class="filter-btn" data-filter="For Sale">🏷️ For Sale</button>
+        <button class="filter-btn" data-filter="Found Pet">🐾 Found Pet</button>
+    </div>
+
+    <!-- Posts Feed -->
+    <div class="feed-container">
+        @if (!Model.Posts.Any())
+        {
+            <div class="feed-empty">
+                <div style="font-size:56px;margin-bottom:16px;">🐾</div>
+                <p>No posts yet. Be the first to post something!</p>
+                <a href="/Posts/Create" class="filter-btn active"
+                   style="text-decoration:none;display:inline-block;margin-top:8px;">
+                    Create a Post
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="posts-grid" id="postsGrid">
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="post-card" data-category="@post.Category">
+
+                        @if (!string.IsNullOrEmpty(post.ImagePath))
+                        {
+                            <div class="post-img-wrap">
+                                <img src="@post.ImagePath" alt="Post image" loading="lazy" />
+                            </div>
+                        }
+
+                        <div class="post-card-body">
+
+                            <div class="post-card-header">
+                                <span class="post-category-badge @CategoryClass(post.Category)">
+                                    @post.Category
+                                </span>
+                                @if (post.Price.HasValue && post.Price > 0)
+                                {
+                                    <span class="post-price">₱@post.Price.Value.ToString("N0")</span>
+                                }
+                                else
+                                {
+                                    <span class="post-free">Free</span>
+                                }
+                            </div>
+
+                            <h3 class="post-title">@post.Title</h3>
+                            <p class="post-desc">@post.Description</p>
+
+                            <div class="post-meta">
+                                <span>📍 @post.Location</span>
+                                <span>🐾 @post.Account.Username</span>
+                                <span>@post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                            </div>
+
+                            @* Hide report button on the user's own posts *@
+                            @if (post.AccountId != Model.CurrentAccountId)
+                            {
+                                <div class="post-card-footer">
+                                    <button class="report-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reportModal"
+                                            onclick="setReportPost(@post.Id)">
+                                        ⚑ Report
+                                    </button>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="post" asp-page-handler="Report">
+                    <input type="hidden" name="postId" id="reportPostId" />
+
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Report Post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Reason <span class="text-danger">*</span>
+                            </label>
+                            <select name="reasonCategory" class="form-select" required>
+                                <option value="">— Select a reason —</option>
+                                <option value="Spam">Spam</option>
+                                <option value="Abuse">Abuse</option>
+                                <option value="Scam">Scam</option>
+                                <option value="Inappropriate">Inappropriate Content</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Additional Details
+                                <span class="text-muted small fw-normal">(optional)</span>
+                            </label>
+                            <textarea name="reasonDetail" class="form-control" rows="3"
+                                      maxlength="500"
+                                      placeholder="Describe the issue in more detail..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger btn-sm">Submit Report</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
-    <style>
-        .landing-welcome {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 70vh;
-        }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ── DOM-based category filter (no page reload) ──────────────────
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const cards       = document.querySelectorAll('#postsGrid .post-card');
 
-        .landing-card {
-            background: white;
-            border-radius: 16px;
-            padding: 48px 56px;
-            text-align: center;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            max-width: 520px;
-            width: 100%;
-        }
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
 
-        .landing-icon {
-            font-size: 56px;
-            margin-bottom: 16px;
-        }
+                const filter = this.dataset.filter;
+                cards.forEach(card => {
+                    card.style.display =
+                        (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+                });
+            });
+        });
 
-        .landing-card h1 {
-            font-size: 26px;
-            font-weight: 700;
-            color: #2c2c2c;
-            margin-bottom: 10px;
+        // ── Populate hidden postId before the modal opens ───────────────
+        function setReportPost(id) {
+            document.getElementById('reportPostId').value = id;
         }
+    </script>
+</body>
+</html>
 
-        .landing-username {
-            color: #c97b67;
-        }
-
-        .landing-sub {
-            color: #666;
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-
-        .landing-links {
-            margin-bottom: 28px;
-        }
-
-        .landing-btn {
-            display: inline-block;
-            background: #c97b67;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 15px;
-            transition: background 0.2s;
-        }
-
-        .landing-btn:hover {
-            background: #b46a58;
-            color: white;
-        }
-
-        .landing-note {
-            color: #999;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
-    </style>
+@functions {
+    // Maps a category string to its CSS badge class
+    static string CategoryClass(string category) => category switch
+    {
+        "Adoption" => "cat-adoption",
+        "Lost Pet" => "cat-lost",
+        "For Sale" => "cat-sale",
+        "Found Pet" => "cat-found",
+        _ => ""
+    };
 }

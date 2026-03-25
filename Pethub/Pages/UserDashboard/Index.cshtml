@@ -1,0 +1,166 @@
+﻿@page
+@model Pethub.Pages.UserDashboard.IndexModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile — PetHub</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/Admin.css" />
+    <link rel="stylesheet" href="~/css/userdash.css" />
+</head>
+<body>
+
+    <div class="user-wrapper">
+
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-inner">
+                <div class="admin-logo">
+                    <img src="~/images/paws1.png" alt="paw" />
+                    <span>PETHUB</span>
+                </div>
+                <div class="user-role-badge">User</div>
+                <nav class="admin-nav">
+                    <a href="/Landing" class="admin-nav-item">Newsfeed</a>
+                    <a href="/Posts/Create" class="admin-nav-item">Create Post</a>
+                    <a href="/UserDashboard/Index" class="admin-nav-item active">My Profile</a>
+                </nav>
+                <div class="admin-sidebar-footer">
+                    <a href="/Logout" class="admin-logout-btn">Logout</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="user-main">
+
+            <div class="admin-topbar">
+                <h4 class="admin-topbar-title">My Profile</h4>
+                <a href="/Landing" class="action-btn action-view"
+                   style="padding:8px 16px;font-size:13px;">Back to Newsfeed</a>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="admin-table-container">
+
+                <!-- ── Profile Card ── -->
+                <div class="profile-card mb-4">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            @Model.Account.Username[0].ToString().ToUpper()
+                        </div>
+                        <div>
+                            <div class="profile-name">@Model.Account.Username</div>
+                            <div class="profile-email">@Model.Account.Email</div>
+                        </div>
+                        <div class="ms-auto">
+                            <a href="/UserDashboard/EditProfile"
+                               class="action-btn action-approve"
+                               style="padding:8px 20px;font-size:13px;">
+                                Edit Profile
+                            </a>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3 text-muted">Gender</dt>
+                        <dd class="col-sm-9">@Model.Account.Gender</dd>
+
+                        <dt class="col-sm-3 text-muted">Contact</dt>
+                        <dd class="col-sm-9">@Model.Account.Contact</dd>
+
+                        <dt class="col-sm-3 text-muted">Address</dt>
+                        <dd class="col-sm-9">@Model.Account.Address</dd>
+
+                        <dt class="col-sm-3 text-muted">Birthday</dt>
+                        <dd class="col-sm-9">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
+
+                        <dt class="col-sm-3 text-muted">Age</dt>
+                        <dd class="col-sm-9">@Model.Account.Age yrs old</dd>
+                    </dl>
+                </div>
+
+                <!-- ── My Posts ── -->
+                <div class="dash-card">
+                    <div class="dash-card-title">
+                        My Posts
+                        <span class="admin-post-count ms-2">@Model.UserPosts.Count total</span>
+                    </div>
+
+                    @if (!Model.UserPosts.Any())
+                    {
+                        <p class="text-muted small mt-1">
+                            You haven't posted anything yet.
+                            <a href="/Posts/Create">Create your first post →</a>
+                        </p>
+                    }
+                    else
+                    {
+                        foreach (var post in Model.UserPosts)
+                        {
+                            <div class="my-post-card status-@post.Status.ToLower()">
+                                @if (!string.IsNullOrEmpty(post.ImagePath))
+                                {
+                                    <img src="@post.ImagePath" alt="post thumbnail"
+                                         style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;" />
+                                }
+                                else
+                                {
+                                    <div style="width:56px;height:56px;border-radius:8px;
+                                                            background:#f0ebe0;flex-shrink:0;
+                                                            display:flex;align-items:center;
+                                                            justify-content:center;font-size:22px;">
+                                        🐾
+                                    </div>
+                                }
+
+                                <div style="flex:1;min-width:0;">
+                                    <div class="fw-semibold"
+                                         style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        @post.Title
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        @post.Category &nbsp;·&nbsp; @post.CreatedAt.ToString("MMM dd, yyyy")
+                                    </div>
+                                </div>
+
+                                <div class="flex-shrink-0">
+                                    @if (post.Status == "Active")
+                                    {
+                                        <span class="status-badge status-approved">Active</span>
+                                    }
+                                    else if (post.Status == "Reported")
+                                    {
+                                        <span class="status-badge status-pending">Reported</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-rejected">Removed</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

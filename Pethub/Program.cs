@@ -1,11 +1,5 @@
-﻿using Humanizer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
-using Pethub.Models;
-using System.Text;
-using System.Threading.Channels;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +8,7 @@ builder.Services.AddDbContext<PethubContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PethubContext")
     ?? throw new InvalidOperationException("Connection string 'PethubContext' not found.")));
 
-// Add session
+// Session
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -33,7 +27,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseSession(); // ← must be before UseAuthorization
+app.UseSession(); // must come before UseAuthorization
 app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();

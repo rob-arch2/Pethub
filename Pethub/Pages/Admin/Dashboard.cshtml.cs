@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
+using Pethub.Models;
 
 namespace Pethub.Pages.Admin
 {
@@ -55,7 +56,6 @@ namespace Pethub.Pages.Admin
             AgeGroup3 = accounts.Count(a => a.Age >= 36 && a.Age <= 50);
             AgeGroup4 = accounts.Count(a => a.Age >= 51);
 
-            // Calculate percentages
             if (TotalAccounts > 0)
             {
                 MalePercent = Math.Round((double)MaleCount / TotalAccounts * 100, 1);

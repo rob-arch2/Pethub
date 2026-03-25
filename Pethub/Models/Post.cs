@@ -14,10 +14,9 @@ namespace Pethub.Models
         [StringLength(1000, MinimumLength = 10, ErrorMessage = "Description must be at least 10 characters.")]
         public string Description { get; set; }
 
-        // Stored path e.g. /uploads/filename.jpg — nullable since image is optional
+        // Stored as /uploads/filename.ext — nullable, image is optional
         public string? ImagePath { get; set; }
 
-        // Nullable — listing can be free
         [Range(0, 999999, ErrorMessage = "Price must be a positive number.")]
         public decimal? Price { get; set; }
 
@@ -25,13 +24,19 @@ namespace Pethub.Models
         [StringLength(200, ErrorMessage = "Location must not exceed 200 characters.")]
         public string Location { get; set; }
 
-        // Pending | Approved | Rejected
-        public string Status { get; set; } = "Pending";
+        [Required(ErrorMessage = "Category is required.")]
+        public string Category { get; set; } // Adoption | Lost Pet | For Sale | Found Pet
+
+        // Active | Reported | Removed
+        public string Status { get; set; } = "Active";
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Foreign key to Account
         public int AccountId { get; set; }
         public Account Account { get; set; }
+
+        // Navigation — a post can have many reports
+        public ICollection<Report> Reports { get; set; } = new List<Report>();
     }
 }

@@ -1,0 +1,172 @@
+﻿@page
+@model Pethub.Pages.Admin.ReportedPostsModel
+@{
+    ViewData["Title"] = "Reported Posts";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reported Posts — PetHub Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/Admin.css" />
+</head>
+<body>
+
+    <div class="admin-wrapper">
+
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-inner">
+                <div class="admin-logo">
+                    <img src="~/images/paws1.png" alt="paw" />
+                    <span>PETHUB</span>
+                </div>
+                <div class="admin-role-badge">Admin</div>
+                <nav class="admin-nav">
+                    <a href="/Admin/Dashboard" class="admin-nav-item">Dashboard</a>
+                    <a href="/AccountManagement/Index" class="admin-nav-item">Account Management</a>
+                    <a href="/Admin/ReportedPosts" class="admin-nav-item active">Reported Posts</a>
+                </nav>
+                <div class="admin-sidebar-footer">
+                    <a href="/Logout" class="admin-logout-btn">Logout</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+
+            <div class="admin-topbar">
+                <h4 class="admin-topbar-title">Reported Posts</h4>
+                <span class="admin-post-count">@Model.ReportedPosts.Count flagged</span>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="admin-table-container">
+
+                @if (!Model.ReportedPosts.Any())
+                {
+                    <div class="admin-empty">
+                        No reported posts right now. All clear! ✅
+                    </div>
+                }
+                else
+                {
+                    foreach (var item in Model.ReportedPosts)
+                    {
+                        <div class="dash-card mb-4">
+
+                            <!-- Post author header -->
+                            <div class="admin-view-poster mb-3">
+                                <div class="admin-view-avatar" style="background:#c97b67;">
+                                    @item.Post.Account.Username[0].ToString().ToUpper()
+                                </div>
+                                <div>
+                                    <div class="fw-bold">@item.Post.Account.Username</div>
+                                    <div class="text-muted small">
+                                        @item.Post.Category &nbsp;·&nbsp;
+                                        @item.Post.CreatedAt.ToString("MMM dd, yyyy")
+                                    </div>
+                                </div>
+                                <div class="ms-auto">
+                                    <span class="status-badge status-pending">
+                                        @item.ReportCount report(s)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Post image (if any) -->
+                            @if (!string.IsNullOrEmpty(item.Post.ImagePath))
+                            {
+                                <div class="mb-3" style="border-radius:8px;overflow:hidden;max-height:280px;">
+                                    <img src="@item.Post.ImagePath" alt="post image"
+                                         style="width:100%;max-height:280px;object-fit:cover;" />
+                                </div>
+                            }
+
+                            <!-- Post content -->
+                            <div class="admin-view-title">@item.Post.Title</div>
+                            <p class="admin-view-desc">@item.Post.Description</p>
+
+                            <div class="admin-view-meta mb-3">
+                                <span class="hp-detail-badge">📍 @item.Post.Location</span>
+                                @if (item.Post.Price.HasValue && item.Post.Price > 0)
+                                {
+                                    <span class="hp-detail-badge hp-price">
+                                        ₱@item.Post.Price.Value.ToString("N0")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="hp-detail-badge hp-free">Free</span>
+                                }
+                            </div>
+
+                            <!-- Reports breakdown -->
+                            <div class="mb-3">
+                                <div class="dash-card-title mb-2">Reports</div>
+                                @foreach (var report in item.Reports)
+                                {
+                                    <div style="background:#faf8f4;border-radius:8px;
+                                                            padding:12px 14px;margin-bottom:8px;
+                                                            border-left:3px solid #f57f17;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span style="font-size:13px;">
+                                                <span class="fw-semibold">@report.Reporter.Username</span>
+                                                <span class="text-muted"> reported as </span>
+                                                <span class="status-badge status-pending"
+                                                      style="font-size:11px;">
+                                                    @report.ReasonCategory
+                                                </span>
+                                            </span>
+                                            <span class="text-muted small">
+                                                @report.CreatedAt.ToString("MMM dd, yyyy")
+                                            </span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(report.ReasonDetail))
+                                        {
+                                            <div class="text-muted small mt-1 fst-italic">
+                                                "@report.ReasonDetail"
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Admin actions -->
+                            <div class="d-flex gap-2">
+                                <form method="post" asp-page-handler="Remove">
+                                    <input type="hidden" name="postId" value="@item.Post.Id" />
+                                    <button type="submit" class="action-btn action-reject"
+                                            style="padding:8px 20px;font-size:13px;">
+                                        Remove Post
+                                    </button>
+                                </form>
+                                <form method="post" asp-page-handler="Dismiss">
+                                    <input type="hidden" name="postId" value="@item.Post.Id" />
+                                    <button type="submit" class="action-btn action-approve"
+                                            style="padding:8px 20px;font-size:13px;">
+                                        Dismiss Report
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    }
+                }
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

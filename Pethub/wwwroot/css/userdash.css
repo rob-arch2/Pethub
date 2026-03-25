@@ -1,0 +1,133 @@
+﻿/* =====================
+   USER DASHBOARD LAYOUT
+   Mirrors admin layout — reuses .admin-sidebar, .admin-nav, etc.
+   Only user-specific additions are defined here.
+   ===================== */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f7f5ef;
+    min-height: 100vh;
+}
+
+.user-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Role badge — blue for users, matches admin sidebar structure */
+.user-role-badge {
+    background: #3949ab;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 24px;
+    align-self: flex-start;
+}
+
+/* Main content area */
+.user-main {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =====================
+   PROFILE CARD
+   ===================== */
+
+.profile-card {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    max-width: 680px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #3949ab;
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1c1c1c;
+    margin-bottom: 2px;
+}
+
+.profile-email {
+    font-size: 13px;
+    color: #888;
+}
+
+/* =====================
+   MY POSTS LIST
+   ===================== */
+
+.my-post-card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+    border-left: 4px solid transparent;
+    transition: box-shadow 0.15s;
+}
+
+    .my-post-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    /* Left accent color reflects post status */
+    .my-post-card.status-active {
+        border-left-color: #2e7d32;
+    }
+
+    .my-post-card.status-reported {
+        border-left-color: #f57f17;
+    }
+
+    .my-post-card.status-removed {
+        border-left-color: #c62828;
+    }
+
+/* =====================
+   RESPONSIVE
+   ===================== */
+
+@media (max-width: 768px) {
+    .user-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
