@@ -36,6 +36,10 @@ namespace Pethub.Data
                 .WithMany()
                 .HasForeignKey(r => r.ReporterAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Post>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }

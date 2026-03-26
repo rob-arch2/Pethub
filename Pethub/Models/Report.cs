@@ -8,14 +8,18 @@ namespace Pethub.Models
 
         // Which post was reported
         public int PostId { get; set; }
-        public Post Post { get; set; }
+
+        // = null! — EF populates this at runtime via FK
+        public Post Post { get; set; } = null!;
 
         // Who submitted the report
         public int ReporterAccountId { get; set; }
-        public Account Reporter { get; set; }
+
+        // = null! — EF populates this at runtime via FK
+        public Account Reporter { get; set; } = null!;
 
         [Required(ErrorMessage = "Please select a reason.")]
-        public string ReasonCategory { get; set; } // Spam | Abuse | Scam | Inappropriate
+        public string ReasonCategory { get; set; } = null!; // Spam | Abuse | Scam | Inappropriate
 
         [StringLength(500, ErrorMessage = "Detail must not exceed 500 characters.")]
         public string? ReasonDetail { get; set; }

@@ -28,44 +28,84 @@ namespace Pethub.Pages
 
         public string? ErrorMessage { get; set; }
 
-        public void OnGet() { }
+        public void OnGet()
+        {
+            _logger.LogDebug("LoginModel.OnGet() called");
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
+            _logger.LogDebug("LoginModel.OnPostAsync() started with Email={Email}", Email ?? "null");
+
+            try
             {
-                ErrorMessage = "Email and password are required.";
+                if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
+                {
+                    _logger.LogWarning("Login attempt with missing email or password");
+                    ErrorMessage = "Email and password are required.";
+                    return Page();
+                }
+
+                // Check admin first before hitting the database
+                if (Email.Trim() == AdminUsername && Password == AdminPassword)
+                {
+                    _logger.LogInformation("✓ Admin login successful");
+
+                    if (HttpContext?.Session == null)
+                    {
+                        _logger.LogError("❌ Session is null for admin login - session middleware may not be configured");
+                        ErrorMessage = "Session configuration error. Please contact support.";
+                        return Page();
+                    }
+
+                    HttpContext.Session.SetString("AccountRole", "Admin");
+                    HttpContext.Session.SetString("AccountUsername", "Admin");
+                    HttpContext.Session.SetInt32("AccountId", 0); // 0 is the admin sentinel value
+
+                    _logger.LogDebug("Admin session variables set successfully");
+                    return RedirectToPage("/Admin/Dashboard");
+                }
+
+                // Hash what the user typed, then compare against the stored hash
+                string hashedPassword = HashPassword(Password);
+                _logger.LogDebug("Querying database for account with Email={Email}", Email);
+
+                var account = await _context.Account
+                    .FirstOrDefaultAsync(a => a.Email == Email && a.Password == hashedPassword);
+
+                if (account == null)
+                {
+                    _logger.LogWarning("Login failed: invalid email or password for Email={Email}", Email);
+                    ErrorMessage = "Invalid email or password.";
+                    return Page();
+                }
+
+                _logger.LogInformation("✓ User login successful - UserId={UserId}, Username={Username}", 
+                    account.Id, account.Username);
+
+                if (HttpContext?.Session == null)
+                {
+                    _logger.LogError("❌ Session is null for user login - session middleware may not be configured");
+                    ErrorMessage = "Session configuration error. Please contact support.";
+                    return Page();
+                }
+
+                // Store just enough in the session to identify the user on every page
+                HttpContext.Session.SetInt32("AccountId", account.Id);
+                HttpContext.Session.SetString("AccountUsername", account.Username);
+                HttpContext.Session.SetString("AccountRole", "User");
+
+                _logger.LogDebug("Session variables set for user {UserId}", account.Id);
+
+                TempData["ToastSuccess"] = $"Welcome back, {account.Username}!";
+                return RedirectToPage("/Landing");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Exception in LoginModel.OnPostAsync()");
+                ErrorMessage = "An error occurred during login. Please try again.";
                 return Page();
             }
-
-            // Check admin first before hitting the database
-            if (Email.Trim() == AdminUsername && Password == AdminPassword)
-            {
-                HttpContext.Session.SetString("AccountRole", "Admin");
-                HttpContext.Session.SetString("AccountUsername", "Admin");
-                HttpContext.Session.SetInt32("AccountId", 0); // 0 is the admin sentinel value
-                return RedirectToPage("/Admin/Dashboard");
-            }
-
-            // Hash what the user typed, then compare against the stored hash
-            string hashedPassword = HashPassword(Password);
-
-            var account = await _context.Account
-                .FirstOrDefaultAsync(a => a.Email == Email && a.Password == hashedPassword);
-
-            if (account == null)
-            {
-                ErrorMessage = "Invalid email or password.";
-                return Page();
-            }
-
-            // Store just enough in the session to identify the user on every page
-            HttpContext.Session.SetInt32("AccountId", account.Id);
-            HttpContext.Session.SetString("AccountUsername", account.Username);
-            HttpContext.Session.SetString("AccountRole", "User");
-
-            TempData["ToastSuccess"] = $"Welcome back, {account.Username}!";
-            return RedirectToPage("/Landing");
         }
 
         // SHA256 hash — must match how passwords are stored during registration

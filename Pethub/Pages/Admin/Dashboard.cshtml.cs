@@ -9,10 +9,12 @@ namespace Pethub.Pages.Admin
     {
         // Admin dashboard page model - prepares counts, percentages and recent accounts for the view
         private readonly PethubContext _context;
+        private readonly ILogger<DashboardModel> _logger;
 
-        public DashboardModel(PethubContext context)
+        public DashboardModel(PethubContext context, ILogger<DashboardModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // Summary counts
@@ -45,50 +47,69 @@ namespace Pethub.Pages.Admin
 
         public async Task OnGetAsync()
         {
-            var accounts = await _context.Account.ToListAsync();
-
-            TotalAccounts = accounts.Count;
-            MaleCount = accounts.Count(a => a.Gender == "Male");
-            FemaleCount = accounts.Count(a => a.Gender == "Female");
-
-            AgeGroup1 = accounts.Count(a => a.Age >= 18 && a.Age <= 25);
-            AgeGroup2 = accounts.Count(a => a.Age >= 26 && a.Age <= 35);
-            AgeGroup3 = accounts.Count(a => a.Age >= 36 && a.Age <= 50);
-            AgeGroup4 = accounts.Count(a => a.Age >= 51);
-
-            if (TotalAccounts > 0)
+            try
             {
-                MalePercent = Math.Round((double)MaleCount / TotalAccounts * 100, 1);
-                FemalePercent = Math.Round((double)FemaleCount / TotalAccounts * 100, 1);
-                Ag1p = Math.Round((double)AgeGroup1 / TotalAccounts * 100, 1);
-                Ag2p = Math.Round((double)AgeGroup2 / TotalAccounts * 100, 1);
-                Ag3p = Math.Round((double)AgeGroup3 / TotalAccounts * 100, 1);
-                Ag4p = Math.Round((double)AgeGroup4 / TotalAccounts * 100, 1);
+                _logger?.LogDebug("DashboardModel: OnGetAsync() started");
+                var accounts = await _context.Account.ToListAsync();
+
+                TotalAccounts = accounts.Count;
+                MaleCount = accounts.Count(a => a.Gender == "Male");
+                FemaleCount = accounts.Count(a => a.Gender == "Female");
+
+                AgeGroup1 = accounts.Count(a => a.Age >= 18 && a.Age <= 25);
+                AgeGroup2 = accounts.Count(a => a.Age >= 26 && a.Age <= 35);
+                AgeGroup3 = accounts.Count(a => a.Age >= 36 && a.Age <= 50);
+                AgeGroup4 = accounts.Count(a => a.Age >= 51);
+
+                _logger?.LogDebug("DashboardModel: Account counts - Total={Total}, Male={Male}, Female={Female}", 
+                    TotalAccounts, MaleCount, FemaleCount);
+
+                if (TotalAccounts > 0)
+                {
+                    MalePercent = Math.Round((double)MaleCount / TotalAccounts * 100, 1);
+                    FemalePercent = Math.Round((double)FemaleCount / TotalAccounts * 100, 1);
+                    Ag1p = Math.Round((double)AgeGroup1 / TotalAccounts * 100, 1);
+                    Ag2p = Math.Round((double)AgeGroup2 / TotalAccounts * 100, 1);
+                    Ag3p = Math.Round((double)AgeGroup3 / TotalAccounts * 100, 1);
+                    Ag4p = Math.Round((double)AgeGroup4 / TotalAccounts * 100, 1);
+                }
+
+                if (accounts.Any())
+                {
+                    var newest = accounts.OrderByDescending(a => a.Birthday).First();
+                    var oldest = accounts.OrderBy(a => a.Birthday).First();
+                    var youngest = accounts.OrderBy(a => a.Age).First();
+                    var oldestAge = accounts.OrderByDescending(a => a.Age).First();
+
+                    NewestAccount = $"{newest.Username} ({newest.Birthday:MMM dd, yyyy})";
+                    OldestAccount = $"{oldest.Username} ({oldest.Birthday:MMM dd, yyyy})";
+                    YoungestAccount = $"{youngest.Username} — {youngest.Age} yrs old";
+                    OldestByAge = $"{oldestAge.Username} — {oldestAge.Age} yrs old";
+
+                    RecentAccounts = accounts
+                        .OrderByDescending(a => a.Id)
+                        .Take(5)
+                        .Select(a => new RecentEntry
+                        {
+                            Username = a.Username,
+                            Email = a.Email,
+                            Gender = a.Gender,
+                            Age = a.Age
+                        })
+                        .ToList();
+
+                    _logger?.LogDebug("DashboardModel: Dashboard loaded successfully - Newest={Newest}, Oldest={Oldest}", 
+                        NewestAccount, OldestAccount);
+                }
+                else
+                {
+                    _logger?.LogWarning("DashboardModel: No accounts found in database");
+                }
             }
-
-            if (accounts.Any())
+            catch (Exception ex)
             {
-                var newest = accounts.OrderByDescending(a => a.Birthday).First();
-                var oldest = accounts.OrderBy(a => a.Birthday).First();
-                var youngest = accounts.OrderBy(a => a.Age).First();
-                var oldestAge = accounts.OrderByDescending(a => a.Age).First();
-
-                NewestAccount = $"{newest.Username} ({newest.Birthday:MMM dd, yyyy})";
-                OldestAccount = $"{oldest.Username} ({oldest.Birthday:MMM dd, yyyy})";
-                YoungestAccount = $"{youngest.Username} — {youngest.Age} yrs old";
-                OldestByAge = $"{oldestAge.Username} — {oldestAge.Age} yrs old";
-
-                RecentAccounts = accounts
-                    .OrderByDescending(a => a.Id)
-                    .Take(5)
-                    .Select(a => new RecentEntry
-                    {
-                        Username = a.Username,
-                        Email = a.Email,
-                        Gender = a.Gender,
-                        Age = a.Age
-                    })
-                    .ToList();
+                _logger?.LogError(ex, "❌ DashboardModel: Exception in OnGetAsync");
+                TotalAccounts = 0;
             }
         }
 

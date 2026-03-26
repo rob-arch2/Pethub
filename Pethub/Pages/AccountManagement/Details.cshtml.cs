@@ -1,64 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
 using Pethub.Models;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Pethub.Pages.AccountManagement
 {
     public class DetailsModel : AdminPageModel
     {
         private readonly PethubContext _context;
+        private readonly ILogger<DetailsModel> _logger;
 
-        public DetailsModel(PethubContext context)
+        public DetailsModel(PethubContext context, ILogger<DetailsModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public Account Account { get; set; } = default!;
 
-        // SHA256 hash of the account password for display
+        // The password is always stored as a Base64 SHA256 hash — display it as-is.
         public string HashedPassword { get; set; } = string.Empty;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                _logger?.LogDebug("DetailsModel: OnGetAsync() started - Id={Id}", id);
 
-            var account = await _context.Account.FirstOrDefaultAsync(m => m.Id == id);
+                if (id == null)
+                {
+                    _logger?.LogWarning("DetailsModel: Id is null");
+                    return NotFound();
+                }
 
-            if (account is not null)
-            {
+                var account = await _context.Account.FirstOrDefaultAsync(m => m.Id == id);
+
+                if (account is null)
+                {
+                    _logger?.LogWarning("DetailsModel: Account not found - Id={Id}", id);
+                    return NotFound();
+                }
+
                 Account = account;
-
-                // if password already looks like a SHA256 hex string, show it as-is; otherwise compute SHA256
-                var pwd = Account.Password ?? string.Empty;
-                HashedPassword = Regex.IsMatch(pwd, "^[0-9a-fA-F]{64}$") ? pwd : ComputeSha256Hash(pwd);
+                HashedPassword = Account.Password;
+                _logger?.LogDebug("DetailsModel: Account loaded - Username={Username}", account.Username);
 
                 return Page();
             }
-
-            return NotFound();
-        }
-
-        private static string ComputeSha256Hash(string raw)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(raw);
-            var hash = sha256.ComputeHash(bytes);
-            var sb = new StringBuilder(hash.Length * 2);
-            foreach (var b in hash)
-                sb.Append(b.ToString("x2"));
-            return sb.ToString();
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ DetailsModel: Exception in OnGetAsync");
+                return NotFound();
+            }
         }
     }
 }

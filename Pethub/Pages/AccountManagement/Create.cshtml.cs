@@ -13,15 +13,26 @@ namespace Pethub.Pages.AccountManagement
     public class CreateModel : AdminPageModel
     {
         private readonly PethubContext _context;
+        private readonly ILogger<CreateModel> _logger;
 
-        public CreateModel(PethubContext context)
+        public CreateModel(PethubContext context, ILogger<CreateModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IActionResult OnGet()
         {
-            return Page();
+            try
+            {
+                _logger?.LogDebug("CreateModel: OnGet() started");
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ CreateModel: Exception in OnGet");
+                return Page();
+            }
         }
 
         [BindProperty]
@@ -30,15 +41,29 @@ namespace Pethub.Pages.AccountManagement
         // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            try
             {
+                _logger?.LogDebug("CreateModel: OnPostAsync() started - Username={Username}", Account?.Username);
+
+                if (!ModelState.IsValid)
+                {
+                    _logger?.LogWarning("CreateModel: ModelState invalid");
+                    return Page();
+                }
+
+                _logger?.LogDebug("CreateModel: Adding new account to database");
+                _context.Account.Add(Account);
+                await _context.SaveChangesAsync();
+
+                _logger?.LogInformation("✓ CreateModel: Account created successfully - Username={Username}", Account.Username);
+                return RedirectToPage("./Index");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ CreateModel: Exception during account creation");
+                ModelState.AddModelError("", "An error occurred while creating the account.");
                 return Page();
             }
-
-            _context.Account.Add(Account);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
         }
     }
 }

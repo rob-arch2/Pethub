@@ -13,17 +13,30 @@ namespace Pethub.Pages.AccountManagement
     public class IndexModel : AdminPageModel
     {
         private readonly PethubContext _context;
+        private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(PethubContext context)
+        public IndexModel(PethubContext context, ILogger<IndexModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IList<Account> Account { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            Account = await _context.Account.ToListAsync();
+            try
+            {
+                _logger?.LogDebug("IndexModel: OnGetAsync() started");
+                Account = await _context.Account.ToListAsync();
+                _logger?.LogDebug("✓ IndexModel: Loaded {AccountCount} accounts", Account.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ IndexModel: Exception in OnGetAsync");
+                Account = new List<Account>();
+            }
         }
     }
 }
+
