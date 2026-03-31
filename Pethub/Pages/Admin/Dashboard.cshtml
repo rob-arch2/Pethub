@@ -1,253 +1,200 @@
-﻿@* Admin dashboard: shows summary stats and recent account activity for admins. *@
-@page
+﻿@page
 @model Pethub.Pages.Admin.DashboardModel
 @{
-    Layout = null;
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard — PetHub Admin</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Command Center</h4>
+</div>
 
-    <div class="admin-wrapper">
+<div class="admin-table-container">
 
-        <!-- SIDEBAR -->
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="admin-role-badge">Admin</div>
-                <nav class="admin-nav">
-                    <a href="/Admin/Dashboard" class="admin-nav-item active">Dashboard</a>
-                    <a href="/AccountManagement/Index" class="admin-nav-item">Account Management</a>
-                    <a href="/Admin/ReportedPosts" class="admin-nav-item">Reported Posts</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Posts (Last 1hr)</div>
+                <div class="fs-3 fw-bold text-dark">@Model.Posts1h</div>
             </div>
-        </aside>
-
-        <!-- MAIN -->
-        <main class="admin-main">
-
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Dashboard</h4>
-                <span class="admin-post-count">Overview of registered accounts</span>
+        </div>
+        <div class="col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Posts (Last 12hr)</div>
+                <div class="fs-3 fw-bold text-dark">@Model.Posts12h</div>
             </div>
-
-            <div class="dash-content">
-
-                <!-- ── ROW 1: Summary stat cards ── -->
-                <div class="dash-stat-row">
-
-                    <div class="dash-stat-card dash-stat-total">
-                        <div class="dash-stat-icon"></div>
-                        <div class="dash-stat-value">@Model.TotalAccounts</div>
-                        <div class="dash-stat-label">Total Accounts</div>
-                    </div>
-
-                    <div class="dash-stat-card dash-stat-male">
-                        <div class="dash-stat-icon"></div>
-                        <div class="dash-stat-value">@Model.MaleCount</div>
-                        <div class="dash-stat-label">Male</div>
-                        <div class="dash-stat-pct">@Model.MalePercent%</div>
-                    </div>
-
-                    <div class="dash-stat-card dash-stat-female">
-                        <div class="dash-stat-icon"></div>
-                        <div class="dash-stat-value">@Model.FemaleCount</div>
-                        <div class="dash-stat-label">Female</div>
-                        <div class="dash-stat-pct">@Model.FemalePercent%</div>
-                    </div>
-
-                    <div class="dash-stat-card dash-stat-young">
-                        <div class="dash-stat-icon"></div>
-                        <div class="dash-stat-value">@Model.AgeGroup1</div>
-                        <div class="dash-stat-label">Ages 18–25</div>
-                        <div class="dash-stat-pct">@Model.Ag1p%</div>
-                    </div>
-
-                </div>
-
-                <!-- ── ROW 2: Gender bar + Age breakdown ── -->
-                <div class="dash-row-2">
-
-                    <!-- Gender distribution -->
-                    <div class="dash-card">
-                        <div class="dash-card-title">Gender Distribution</div>
-
-                        @if (Model.TotalAccounts == 0)
-                        {
-                            <p class="text-muted small">No accounts yet.</p>
-                        }
-                        else
-                        {
-                            <div class="dash-gender-bar-wrap">
-                                <div class="dash-gender-bar">
-                                    <div class="dash-bar-male" style="width:@Model.MalePercent%">
-                                        @if (Model.MalePercent > 8)
-                                        {
-                                            <span>@Model.MalePercent%</span>
-                                        }
-                                    </div>
-                                    <div class="dash-bar-female" style="width:@Model.FemalePercent%">
-                                        @if (Model.FemalePercent > 8)
-                                        {
-                                            <span>@Model.FemalePercent%</span>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dash-gender-legend">
-                                <span class="dash-legend-dot dash-dot-male"></span> Male (@Model.MaleCount)
-                                &nbsp;&nbsp;
-                                <span class="dash-legend-dot dash-dot-female"></span> Female (@Model.FemaleCount)
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Age group breakdown -->
-                    <div class="dash-card">
-                        <div class="dash-card-title">Age Group Breakdown</div>
-
-                        @if (Model.TotalAccounts == 0)
-                        {
-                            <p class="text-muted small">No accounts yet.</p>
-                        }
-                        else
-                        {
-                            <div class="dash-age-rows">
-                                <div class="dash-age-row">
-                                    <span class="dash-age-label">18–25</span>
-                                    <div class="dash-age-track">
-                                        <div class="dash-age-fill dash-age-c1" style="width:@Model.Ag1p%"></div>
-                                    </div>
-                                    <span class="dash-age-count">@Model.AgeGroup1 <span class="text-muted">(@Model.Ag1p%)</span></span>
-                                </div>
-                                <div class="dash-age-row">
-                                    <span class="dash-age-label">26–35</span>
-                                    <div class="dash-age-track">
-                                        <div class="dash-age-fill dash-age-c2" style="width:@Model.Ag2p%"></div>
-                                    </div>
-                                    <span class="dash-age-count">@Model.AgeGroup2 <span class="text-muted">(@Model.Ag2p%)</span></span>
-                                </div>
-                                <div class="dash-age-row">
-                                    <span class="dash-age-label">36–50</span>
-                                    <div class="dash-age-track">
-                                        <div class="dash-age-fill dash-age-c3" style="width:@Model.Ag3p%"></div>
-                                    </div>
-                                    <span class="dash-age-count">@Model.AgeGroup3 <span class="text-muted">(@Model.Ag3p%)</span></span>
-                                </div>
-                                <div class="dash-age-row">
-                                    <span class="dash-age-label">51+</span>
-                                    <div class="dash-age-track">
-                                        <div class="dash-age-fill dash-age-c4" style="width:@Model.Ag4p%"></div>
-                                    </div>
-                                    <span class="dash-age-count">@Model.AgeGroup4 <span class="text-muted">(@Model.Ag4p%)</span></span>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                </div>
-
-                <!-- ── ROW 3: Highlights ── -->
-                <div class="dash-card">
-                    <div class="dash-card-title">Account Highlights</div>
-                    <div class="dash-highlights">
-                        <div class="dash-highlight-item">
-                            <span class="dash-highlight-icon"></span>
-                            <div>
-                                <div class="dash-highlight-label">Most Recently Born</div>
-                                <div class="dash-highlight-value">@Model.NewestAccount</div>
-                            </div>
-                        </div>
-                        <div class="dash-highlight-item">
-                            <span class="dash-highlight-icon"></span>
-                            <div>
-                                <div class="dash-highlight-label">Earliest Born</div>
-                                <div class="dash-highlight-value">@Model.OldestAccount</div>
-                            </div>
-                        </div>
-                        <div class="dash-highlight-item">
-                            <span class="dash-highlight-icon"></span>
-                            <div>
-                                <div class="dash-highlight-label">Youngest Member</div>
-                                <div class="dash-highlight-value">@Model.YoungestAccount</div>
-                            </div>
-                        </div>
-                        <div class="dash-highlight-item">
-                            <span class="dash-highlight-icon"></span>
-                            <div>
-                                <div class="dash-highlight-label">Oldest Member</div>
-                                <div class="dash-highlight-value">@Model.OldestByAge</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── ROW 4: Recent registrations ── -->
-                <div class="dash-card">
-                    <div class="dash-card-title">Recently Registered Accounts</div>
-
-                    @if (!Model.RecentAccounts.Any())
-                    {
-                        <p class="text-muted small">No accounts registered yet.</p>
-                    }
-                    else
-                    {
-                        <table class="table admin-table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>USERNAME</th>
-                                    <th>EMAIL</th>
-                                    <th>GENDER</th>
-                                    <th>AGE</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var a in Model.RecentAccounts)
-                                {
-                                    <tr>
-                                        <td class="fw-semibold">@a.Username</td>
-                                        <td class="text-muted">@a.Email</td>
-                                        <td>
-                                            @if (a.Gender == "Male")
-                                            {
-                                                <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
-                                            }
-                                        </td>
-                                        <td>@a.Age yrs</td>
-                                        <td>
-                                            <a href="/AccountManagement/Index" class="action-btn action-view">View All</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                </div>
-
+        </div>
+        <div class="col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Posts (Last 24hr)</div>
+                <div class="fs-3 fw-bold text-primary">@Model.Posts1d</div>
             </div>
-        </main>
+        </div>
+        <div class="col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Posts (Last 7 Days)</div>
+                <div class="fs-3 fw-bold" style="color: #c97b67;">@Model.Posts7d</div>
+            </div>
+        </div>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-8">
+            <div class="dash-card h-100">
+                <div class="dash-card-title border-bottom pb-2 mb-3">Community Activity (7 Days)</div>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="dash-card h-100">
+                <div class="dash-card-title border-bottom pb-2 mb-3">Pet Resolution Tracking</div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted fw-bold small text-uppercase">Total Lost Pets</span>
+                        <span class="fw-bold text-danger">@Model.TotalLost</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted fw-bold small text-uppercase">Total Found Pets</span>
+                        <span class="fw-bold text-success">@Model.TotalFound</span>
+                    </div>
+
+                    @{
+                        int totalMissingAndFound = Model.TotalLost + Model.TotalFound;
+                        double foundPercentage = totalMissingAndFound > 0 ? ((double)Model.TotalFound / totalMissingAndFound) * 100 : 0;
+                    }
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-muted">Resolution Rate</span>
+                            <span class="small fw-bold">@foundPercentage.ToString("0.0")%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @foundPercentage%" aria-valuenow="@foundPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 text-muted" />
+
+                <div class="text-center">
+                    <div class="text-muted small fw-bold text-uppercase mb-2">Total Pets Up For Adoption</div>
+                    <div class="fs-1 fw-bold" style="color: #3949ab;">@Model.TotalAdoptions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-6">
+            <div class="dash-card h-100">
+                <div class="dash-card-title border-bottom pb-2 mb-3 d-flex justify-content-between">
+                    <span>Recently Joined Users</span>
+                    <i class="bi bi-person-plus text-muted"></i>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var user in Model.RecentAccounts)
+                    {
+                        <div class="d-flex align-items-center p-2 rounded" style="background: #faf8f4;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 40px; height: 40px; background: #c97b67;">
+                                @user.Username[0].ToString().ToUpper()
+                            </div>
+                            <div class="ms-3 flex-grow-1">
+                                <div class="fw-bold text-dark" style="font-size: 14px;">@user.Username</div>
+                                <div class="text-muted" style="font-size: 12px;">@user.Email</div>
+                            </div>
+                            <span class="badge bg-light text-dark border">@user.Age yrs</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="dash-card h-100">
+                <div class="dash-card-title border-bottom pb-2 mb-3 d-flex justify-content-between">
+                    <span>Newly Registered Pets</span>
+                    <i class="bi bi-heart text-muted"></i>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var pet in Model.RecentPets)
+                    {
+                        <div class="d-flex align-items-center p-2 rounded bg-light border border-light">
+                            @if (!string.IsNullOrEmpty(pet.ImagePath))
+                            {
+                                <img src="@pet.ImagePath" class="rounded" style="width: 40px; height: 40px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="rounded d-flex align-items-center justify-content-center text-muted" style="width: 40px; height: 40px; background: #e2e6ea;">
+                                    🐾
+                                </div>
+                            }
+                            <div class="ms-3 flex-grow-1">
+                                <div class="fw-bold text-dark" style="font-size: 14px;">@pet.Name <span class="text-muted fw-normal">(@pet.Species)</span></div>
+                                <div class="text-muted" style="font-size: 12px;">Owner: @@@pet.Account.Username</div>
+                            </div>
+                            @if (pet.VaccinationStatus == "Fully Vaccinated")
+                            {
+                                <i class="bi bi-shield-check text-success"></i>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Load the data from C#
+        const chartLabels = @Html.Raw(Model.ChartLabelsJson);
+        const chartData = @Html.Raw(Model.ChartDataJson);
+
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'New Posts',
+                    data: chartData,
+                    borderColor: '#3949ab',
+                    backgroundColor: 'rgba(57, 73, 171, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#c97b67',
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.3 // Adds a soft curve to the line
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 } // Only show whole numbers
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+}

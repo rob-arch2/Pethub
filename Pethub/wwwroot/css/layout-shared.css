@@ -1,0 +1,191 @@
+﻿:root {
+    --sidebar-bg-user: #ffffff;
+    --sidebar-color-user: #333;
+    --sidebar-bg-admin: #1a1d20;
+    --sidebar-color-admin: #fff;
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --primary-color: #ff6b6b; /* PetHub Theme Accent */
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Wrapper & Main Content */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.app-main {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    padding: 2rem;
+    width: calc(100% - var(--sidebar-width));
+}
+
+/* Sidebar Structural Base */
+.app-sidebar {
+    width: var(--sidebar-width);
+    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+    z-index: 1000;
+    position: fixed;
+    height: 100vh;
+}
+
+    .app-sidebar.collapsed {
+        width: var(--sidebar-collapsed-width);
+    }
+
+        .app-sidebar.collapsed ~ .app-main {
+            margin-left: var(--sidebar-collapsed-width);
+            width: calc(100% - var(--sidebar-collapsed-width));
+        }
+
+    /* Themes */
+    .app-sidebar.user-theme {
+        background-color: var(--sidebar-bg-user);
+        color: var(--sidebar-color-user);
+    }
+
+    .app-sidebar.admin-theme {
+        background-color: var(--sidebar-bg-admin);
+        color: var(--sidebar-color-admin);
+    }
+
+/* Sidebar Header & Toggle */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(128,128,128,0.2);
+}
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+    .logo-wrapper img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+    }
+
+    .logo-wrapper span {
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 1px;
+    }
+
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+    .toggle-btn:hover {
+        color: var(--primary-color);
+    }
+
+/* Navigation Items */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 1.5rem;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+    .nav-item i {
+        font-size: 1.3rem;
+        min-width: 25px;
+        text-align: center;
+    }
+
+/* Active & Hover States */
+.app-sidebar.user-theme .nav-item:hover, .app-sidebar.user-theme .nav-item.active {
+    background-color: rgba(255, 107, 107, 0.1);
+    color: var(--primary-color);
+    border-right: 4px solid var(--primary-color);
+}
+
+.app-sidebar.admin-theme .nav-item:hover, .app-sidebar.admin-theme .nav-item.active {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    border-right: 4px solid #fff;
+}
+
+/* Collapsed State Hiding */
+.app-sidebar.collapsed .logo-wrapper span,
+.app-sidebar.collapsed .nav-item span,
+.app-sidebar.collapsed .user-role-badge {
+    display: none;
+}
+
+.app-sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 1.5rem 0;
+    flex-direction: column-reverse;
+    gap: 15px;
+}
+
+.app-sidebar.collapsed .nav-item {
+    padding: 12px 0;
+    justify-content: center;
+}
+
+    .app-sidebar.collapsed .nav-item i {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+/* Profile Card Enhancements */
+.profile-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.pet-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+    .pet-card:hover {
+        transform: translateY(-5px);
+    }

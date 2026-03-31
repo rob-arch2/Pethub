@@ -33,5 +33,9 @@ namespace Pethub.Models
         public DateTime Birthday { get; set; }
 
         public int Age { get; set; }
+
+        // --- NEW PROPERTY ---
+        // Defaults to "Active". Will be changed to "Banned" if an Admin bans them.
+        public string AccountStatus { get; set; } = "Active";
     }
 }

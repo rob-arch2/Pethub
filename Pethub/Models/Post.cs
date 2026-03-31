@@ -14,7 +14,8 @@ namespace Pethub.Models
         [StringLength(1000, MinimumLength = 10, ErrorMessage = "Description must be at least 10 characters.")]
         public string Description { get; set; } = null!;
 
-        // Stored as /uploads/filename.ext — nullable, image is optional
+        // Allows paths up to 2,048 characters (Standard web URL limit)
+        [MaxLength(2048)]
         public string? ImagePath { get; set; }
 
         [Range(0, 999999, ErrorMessage = "Price must be a positive number.")]

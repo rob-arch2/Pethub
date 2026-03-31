@@ -2,171 +2,106 @@
 @model Pethub.Pages.Admin.ReportedPostsModel
 @{
     ViewData["Title"] = "Reported Posts";
-    Layout = null;
+    Layout = "_Layout";
+    var successMsg = TempData["Success"] as string;
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reported Posts — PetHub Admin</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Report Management</h4>
+</div>
 
-    <div class="admin-wrapper">
+<div class="admin-table-container">
 
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
+    @if (!string.IsNullOrEmpty(successMsg))
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" style="background-color: #e6f4ea; color: #2e7d32;">
+            <i class="bi bi-check-circle-fill me-2"></i> @successMsg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4" style="border-left-color: #f57f17 !important;">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 20px;">
+                    <i class="bi bi-flag-fill"></i>
                 </div>
-                <div class="admin-role-badge">Admin</div>
-                <nav class="admin-nav">
-                    <a href="/Admin/Dashboard" class="admin-nav-item">Dashboard</a>
-                    <a href="/AccountManagement/Index" class="admin-nav-item">Account Management</a>
-                    <a href="/Admin/ReportedPosts" class="admin-nav-item active">Reported Posts</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Active Reports</div>
+                    <div class="fs-4 fw-bold" style="color: #2c3e50;">@Model.TotalActiveReports</div>
                 </div>
             </div>
-        </aside>
-
-        <main class="admin-main">
-
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Reported Posts</h4>
-                <span class="admin-post-count">@Model.ReportedPosts.Count flagged</span>
-            </div>
-
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3">
-                    @TempData["Success"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4" style="border-left-color: #3949ab !important;">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 20px;">
+                    <i class="bi bi-people-fill"></i>
                 </div>
-            }
-
-            <div class="admin-table-container">
-
-                @if (!Model.ReportedPosts.Any())
-                {
-                    <div class="admin-empty">
-                        No reported posts right now. All clear! ✅
-                    </div>
-                }
-                else
-                {
-                    foreach (var item in Model.ReportedPosts)
-                    {
-                        <div class="dash-card mb-4">
-
-                            <!-- Post author header -->
-                            <div class="admin-view-poster mb-3">
-                                <div class="admin-view-avatar" style="background:#c97b67;">
-                                    @item.Post.Account.Username[0].ToString().ToUpper()
-                                </div>
-                                <div>
-                                    <div class="fw-bold">@item.Post.Account.Username</div>
-                                    <div class="text-muted small">
-                                        @item.Post.Category &nbsp;·&nbsp;
-                                        @item.Post.CreatedAt.ToString("MMM dd, yyyy")
-                                    </div>
-                                </div>
-                                <div class="ms-auto">
-                                    <span class="status-badge status-pending">
-                                        @item.ReportCount report(s)
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Post image (if any) -->
-                            @if (!string.IsNullOrEmpty(item.Post.ImagePath))
-                            {
-                                <div class="mb-3" style="border-radius:8px;overflow:hidden;max-height:280px;">
-                                    <img src="@item.Post.ImagePath" alt="post image"
-                                         style="width:100%;max-height:280px;object-fit:cover;" />
-                                </div>
-                            }
-
-                            <!-- Post content -->
-                            <div class="admin-view-title">@item.Post.Title</div>
-                            <p class="admin-view-desc">@item.Post.Description</p>
-
-                            <div class="admin-view-meta mb-3">
-                                <span class="hp-detail-badge">📍 @item.Post.Location</span>
-                                @if (item.Post.Price.HasValue && item.Post.Price > 0)
-                                {
-                                    <span class="hp-detail-badge hp-price">
-                                        ₱@item.Post.Price.Value.ToString("N0")
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="hp-detail-badge hp-free">Free</span>
-                                }
-                            </div>
-
-                            <!-- Reports breakdown -->
-                            <div class="mb-3">
-                                <div class="dash-card-title mb-2">Reports</div>
-                                @foreach (var report in item.Reports)
-                                {
-                                    <div style="background:#faf8f4;border-radius:8px;
-                                                            padding:12px 14px;margin-bottom:8px;
-                                                            border-left:3px solid #f57f17;">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span style="font-size:13px;">
-                                                <span class="fw-semibold">@report.Reporter.Username</span>
-                                                <span class="text-muted"> reported as </span>
-                                                <span class="status-badge status-pending"
-                                                      style="font-size:11px;">
-                                                    @report.ReasonCategory
-                                                </span>
-                                            </span>
-                                            <span class="text-muted small">
-                                                @report.CreatedAt.ToString("MMM dd, yyyy")
-                                            </span>
-                                        </div>
-                                        @if (!string.IsNullOrEmpty(report.ReasonDetail))
-                                        {
-                                            <div class="text-muted small mt-1 fst-italic">
-                                                "@report.ReasonDetail"
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-
-                            <!-- Admin actions -->
-                            <div class="d-flex gap-2">
-                                <form method="post" asp-page-handler="Remove">
-                                    <input type="hidden" name="postId" value="@item.Post.Id" />
-                                    <button type="submit" class="action-btn action-reject"
-                                            style="padding:8px 20px;font-size:13px;">
-                                        Remove Post
-                                    </button>
-                                </form>
-                                <form method="post" asp-page-handler="Dismiss">
-                                    <input type="hidden" name="postId" value="@item.Post.Id" />
-                                    <button type="submit" class="action-btn action-approve"
-                                            style="padding:8px 20px;font-size:13px;">
-                                        Dismiss Report
-                                    </button>
-                                </form>
-                            </div>
-
-                        </div>
-                    }
-                }
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Unique Users Reported</div>
+                    <div class="fs-4 fw-bold" style="color: #2c3e50;">@Model.UniqueUsersReported</div>
+                </div>
             </div>
-        </main>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4" style="border-left-color: #c62828 !important;">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 20px;">
+                    <i class="bi bi-person-x-fill"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Total Banned Users</div>
+                    <div class="fs-4 fw-bold" style="color: #2c3e50;">@Model.TotalBannedUsers</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="dash-card">
+        <div class="dash-card-title border-bottom pb-3 mb-0">Actionable Reports</div>
+
+        <div class="table-responsive">
+            <table class="table align-middle admin-table mb-0">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Date</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reported Post Title</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reported By</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reason</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Reports)
+                    {
+                        <tr style="border-bottom: 1px solid #f0f2f5;">
+                            <td class="text-muted px-4">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="fw-semibold px-4" style="color: #2c3e50;">@item.Post.Title</td>
+                            <td class="px-4">
+                                <span class="badge bg-light text-dark border">@@@item.Reporter.Username</span>
+                            </td>
+                            <td class="px-4">
+                                <span class="status-badge status-rejected">@item.ReasonCategory</span>
+                            </td>
+                            <td class="px-4 text-end">
+                                <form method="post" class="d-inline-flex gap-2">
+                                    <button type="submit" asp-page-handler="Dismiss" asp-route-reportId="@item.Id" class="action-btn action-view">Dismiss</button>
+                                    <button type="submit" asp-page-handler="DeletePost" asp-route-postId="@item.PostId" class="action-btn action-reject" onclick="return confirm('Delete this post permanently?');">Delete Post</button>
+                                    <button type="submit" asp-page-handler="BanUser" asp-route-accountId="@item.Post.AccountId" class="action-btn text-white" style="background: #1e2125;" onclick="return confirm('Ban the author of this post?');">Ban Author</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Reports.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted fs-1 mb-2"><i class="bi bi-shield-check"></i></div>
+                                <div class="text-muted fw-semibold">All clear! No reported posts at this time.</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

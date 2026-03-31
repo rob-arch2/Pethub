@@ -1,57 +1,13 @@
 ﻿/* =====================
-   USER DASHBOARD LAYOUT
-   Mirrors admin layout — reuses .admin-sidebar, .admin-nav, etc.
-   Only user-specific additions are defined here.
-   ===================== */
-
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f7f5ef;
-    min-height: 100vh;
-}
-
-.user-wrapper {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* Role badge — blue for users, matches admin sidebar structure */
-.user-role-badge {
-    background: #3949ab;
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: inline-block;
-    margin-bottom: 24px;
-    align-self: flex-start;
-}
-
-/* Main content area */
-.user-main {
-    margin-left: 220px;
-    width: calc(100% - 220px);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* =====================
-   PROFILE CARD
+   USER DASHBOARD SPECIFICS
    ===================== */
 
 .profile-card {
     background: white;
     border-radius: 12px;
-    padding: 28px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    max-width: 680px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+    border: 1px solid #f0f2f5;
 }
 
 .profile-header {
@@ -67,48 +23,45 @@ body {
     border-radius: 50%;
     background: #3949ab;
     color: white;
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(57, 73, 171, 0.2);
 }
 
 .profile-name {
     font-size: 20px;
-    font-weight: 700;
-    color: #1c1c1c;
+    font-weight: 800;
+    color: #2c3e50;
     margin-bottom: 2px;
 }
 
 .profile-email {
-    font-size: 13px;
-    color: #888;
+    font-size: 14px;
+    color: #7f8c8d;
 }
 
-/* =====================
-   MY POSTS LIST
-   ===================== */
-
+/* Post Summary Cards */
 .my-post-card {
-    background: white;
+    background: #f8f9fa;
     border-radius: 10px;
-    padding: 14px 18px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    padding: 16px;
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 10px;
+    gap: 16px;
+    margin-bottom: 12px;
     border-left: 4px solid transparent;
-    transition: box-shadow 0.15s;
+    transition: all 0.2s ease;
 }
 
     .my-post-card:hover {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    /* Left accent color reflects post status */
     .my-post-card.status-active {
         border-left-color: #2e7d32;
     }
@@ -121,13 +74,37 @@ body {
         border-left-color: #c62828;
     }
 
-/* =====================
-   RESPONSIVE
-   ===================== */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-@media (max-width: 768px) {
-    .user-main {
-        margin-left: 0;
-        width: 100%;
-    }
+.status-approved {
+    background: #e6f4ea;
+    color: #2e7d32;
+}
+
+.status-pending {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.status-rejected {
+    background: #fde8e6;
+    color: #c62828;
+}
+
+/* Dashboard Mini-Tables/Lists (Data List formatting) */
+dl.row dt {
+    font-weight: 600;
+    color: #7f8c8d;
+}
+
+dl.row dd {
+    color: #2c3e50;
+    font-weight: 500;
 }

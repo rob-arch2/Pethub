@@ -13,7 +13,8 @@ namespace Pethub.Data
         public DbSet<Account> Account { get; set; } = default!;
         public DbSet<Post> Post { get; set; } = default!;
         public DbSet<Report> Report { get; set; } = default!;
-
+        public DbSet<Pet> Pet { get; set; } = default!;
+        public DbSet<ActivityLog> ActivityLog { get; set; } = default!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Post → Account: restrict so deleting an account does not cascade-delete its posts
@@ -36,6 +37,12 @@ namespace Pethub.Data
                 .WithMany()
                 .HasForeignKey(r => r.ReporterAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Pet>()
+                .HasOne(p => p.Account)
+                .WithMany()
+                .HasForeignKey(p => p.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Post>()
                 .Property(p => p.Price)

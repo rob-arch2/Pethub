@@ -1,124 +1,86 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
 using Pethub.Models;
+using System.Text.Json;
 
 namespace Pethub.Pages.Admin
 {
     public class DashboardModel : AdminPageModel
     {
-        // Admin dashboard page model - prepares counts, percentages and recent accounts for the view
         private readonly PethubContext _context;
-        private readonly ILogger<DashboardModel> _logger;
 
-        public DashboardModel(PethubContext context, ILogger<DashboardModel> logger)
+        public DashboardModel(PethubContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
-        // Summary counts
-        public int TotalAccounts { get; set; }
-        public int MaleCount { get; set; }
-        public int FemaleCount { get; set; }
+        // Post Velocity
+        public int Posts1h { get; set; }
+        public int Posts12h { get; set; }
+        public int Posts1d { get; set; }
+        public int Posts7d { get; set; }
 
-        // Age group breakdown
-        public int AgeGroup1 { get; set; } // 18–25
-        public int AgeGroup2 { get; set; } // 26–35
-        public int AgeGroup3 { get; set; } // 36–50
-        public int AgeGroup4 { get; set; } // 51+
+        // Chart Data
+        public string ChartLabelsJson { get; set; } = "[]";
+        public string ChartDataJson { get; set; } = "[]";
 
-        // Pre-calculated percentages — avoids Razor scope issues
-        public double MalePercent { get; set; }
-        public double FemalePercent { get; set; }
-        public double Ag1p { get; set; }
-        public double Ag2p { get; set; }
-        public double Ag3p { get; set; }
-        public double Ag4p { get; set; }
+        // Category / Ratios
+        public int TotalLost { get; set; }
+        public int TotalFound { get; set; }
+        public int TotalAdoptions { get; set; }
 
-        // Highlights
-        public string NewestAccount { get; set; } = "—";
-        public string OldestAccount { get; set; } = "—";
-        public string YoungestAccount { get; set; } = "—";
-        public string OldestByAge { get; set; } = "—";
+        // Recent Additions
+        public IList<Account> RecentAccounts { get; set; } = new List<Account>();
+        public IList<Pet> RecentPets { get; set; } = new List<Pet>();
 
-        // Recent registrations (last 5)
-        public List<RecentEntry> RecentAccounts { get; set; } = new();
-
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            try
+            var now = DateTime.Now;
+
+            // 1. Post Velocity
+            Posts1h = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddHours(-1));
+            Posts12h = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddHours(-12));
+            Posts1d = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddDays(-1));
+            Posts7d = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddDays(-7));
+
+            // 2. Prepare Graph Data (Last 7 Days)
+            var last7DaysDates = Enumerable.Range(0, 7).Select(i => now.Date.AddDays(-i)).Reverse().ToList();
+            var labels = last7DaysDates.Select(d => d.ToString("MMM dd")).ToList();
+            var data = new List<int>();
+
+            // Fetch all posts from last 7 days to calculate groups in memory safely
+            var recentPosts = await _context.Post
+                .Where(p => p.CreatedAt >= now.AddDays(-7))
+                .Select(p => p.CreatedAt.Date)
+                .ToListAsync();
+
+            foreach (var day in last7DaysDates)
             {
-                _logger?.LogDebug("DashboardModel: OnGetAsync() started");
-                var accounts = await _context.Account.ToListAsync();
-
-                TotalAccounts = accounts.Count;
-                MaleCount = accounts.Count(a => a.Gender == "Male");
-                FemaleCount = accounts.Count(a => a.Gender == "Female");
-
-                AgeGroup1 = accounts.Count(a => a.Age >= 18 && a.Age <= 25);
-                AgeGroup2 = accounts.Count(a => a.Age >= 26 && a.Age <= 35);
-                AgeGroup3 = accounts.Count(a => a.Age >= 36 && a.Age <= 50);
-                AgeGroup4 = accounts.Count(a => a.Age >= 51);
-
-                _logger?.LogDebug("DashboardModel: Account counts - Total={Total}, Male={Male}, Female={Female}", 
-                    TotalAccounts, MaleCount, FemaleCount);
-
-                if (TotalAccounts > 0)
-                {
-                    MalePercent = Math.Round((double)MaleCount / TotalAccounts * 100, 1);
-                    FemalePercent = Math.Round((double)FemaleCount / TotalAccounts * 100, 1);
-                    Ag1p = Math.Round((double)AgeGroup1 / TotalAccounts * 100, 1);
-                    Ag2p = Math.Round((double)AgeGroup2 / TotalAccounts * 100, 1);
-                    Ag3p = Math.Round((double)AgeGroup3 / TotalAccounts * 100, 1);
-                    Ag4p = Math.Round((double)AgeGroup4 / TotalAccounts * 100, 1);
-                }
-
-                if (accounts.Any())
-                {
-                    var newest = accounts.OrderByDescending(a => a.Birthday).First();
-                    var oldest = accounts.OrderBy(a => a.Birthday).First();
-                    var youngest = accounts.OrderBy(a => a.Age).First();
-                    var oldestAge = accounts.OrderByDescending(a => a.Age).First();
-
-                    NewestAccount = $"{newest.Username} ({newest.Birthday:MMM dd, yyyy})";
-                    OldestAccount = $"{oldest.Username} ({oldest.Birthday:MMM dd, yyyy})";
-                    YoungestAccount = $"{youngest.Username} — {youngest.Age} yrs old";
-                    OldestByAge = $"{oldestAge.Username} — {oldestAge.Age} yrs old";
-
-                    RecentAccounts = accounts
-                        .OrderByDescending(a => a.Id)
-                        .Take(5)
-                        .Select(a => new RecentEntry
-                        {
-                            Username = a.Username,
-                            Email = a.Email,
-                            Gender = a.Gender,
-                            Age = a.Age
-                        })
-                        .ToList();
-
-                    _logger?.LogDebug("DashboardModel: Dashboard loaded successfully - Newest={Newest}, Oldest={Oldest}", 
-                        NewestAccount, OldestAccount);
-                }
-                else
-                {
-                    _logger?.LogWarning("DashboardModel: No accounts found in database");
-                }
+                data.Add(recentPosts.Count(d => d == day));
             }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "❌ DashboardModel: Exception in OnGetAsync");
-                TotalAccounts = 0;
-            }
-        }
 
-        public class RecentEntry
-        {
-            public string Username { get; set; }
-            public string Email { get; set; }
-            public string Gender { get; set; }
-            public int Age { get; set; }
+            ChartLabelsJson = JsonSerializer.Serialize(labels);
+            ChartDataJson = JsonSerializer.Serialize(data);
+
+            // 3. Category Stats
+            TotalLost = await _context.Post.CountAsync(p => p.Category == "Lost Pet");
+            TotalFound = await _context.Post.CountAsync(p => p.Category == "Found Pet");
+            TotalAdoptions = await _context.Post.CountAsync(p => p.Category == "Adoption");
+
+            // 4. Recent Data
+            RecentAccounts = await _context.Account
+                .OrderByDescending(a => a.Id)
+                .Take(5)
+                .ToListAsync();
+
+            RecentPets = await _context.Pet
+                .Include(p => p.Account)
+                .OrderByDescending(p => p.Id)
+                .Take(5)
+                .ToListAsync();
+
+            return Page();
         }
     }
 }

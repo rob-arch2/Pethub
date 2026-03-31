@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pethub.Data;
 
@@ -11,9 +12,11 @@ using Pethub.Data;
 namespace Pethub.Migrations
 {
     [DbContext(typeof(PethubContext))]
-    partial class PethubContextModelSnapshot : ModelSnapshot
+    [Migration("20260331064203_AddPetTable")]
+    partial class AddPetTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +32,6 @@ namespace Pethub.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -69,38 +68,6 @@ namespace Pethub.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Account");
-                });
-
-            modelBuilder.Entity("Pethub.Models.ActivityLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AccountId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Details")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("ActivityLog");
                 });
 
             modelBuilder.Entity("Pethub.Models.Pet", b =>
@@ -226,15 +193,6 @@ namespace Pethub.Migrations
                     b.HasIndex("ReporterAccountId");
 
                     b.ToTable("Report");
-                });
-
-            modelBuilder.Entity("Pethub.Models.ActivityLog", b =>
-                {
-                    b.HasOne("Pethub.Models.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId");
-
-                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Pethub.Models.Pet", b =>
