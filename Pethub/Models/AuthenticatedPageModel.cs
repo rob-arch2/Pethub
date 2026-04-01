@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Pethub.Data; // <-- Added to access PethubContext
 
 namespace Pethub.Models
 {
@@ -82,13 +83,13 @@ namespace Pethub.Models
                 // Try to get a logger from HttpContext for debugging
                 var loggerFactory = HttpContext?.RequestServices?.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
                 var debugLogger = loggerFactory?.CreateLogger("AuthenticatedPageModel");
-                debugLogger?.LogInformation("🔍 [AuthCheck-START] OnPageHandlerExecuting for page {PageName} handler {Handler} method {Method}", 
-                    context?.RouteData?.Values["page"] ?? "unknown", 
+                debugLogger?.LogInformation("🔍 [AuthCheck-START] OnPageHandlerExecuting for page {PageName} handler {Handler} method {Method}",
+                    context?.RouteData?.Values["page"] ?? "unknown",
                     context?.HandlerMethod?.Name ?? "unknown",
                     HttpContext?.Request?.Method ?? "unknown");
 
-                Logger?.LogDebug("AuthenticatedPageModel: OnPageHandlerExecuting started for page {PageName}", 
-                    context.RouteData.Values["page"]);
+                Logger?.LogDebug("AuthenticatedPageModel: OnPageHandlerExecuting started for page {PageName}",
+                    context!.RouteData.Values["page"]);
 
                 // Guard: check if context is null
                 if (context == null)
@@ -122,6 +123,23 @@ namespace Pethub.Models
                     context.Result = RedirectToPage("/Login");
                     return;
                 }
+
+                // ====================================================================
+                // ── NEW: INSTANT BAN ENFORCER ───────────────────────────────────────
+                // ====================================================================
+                var dbContext = HttpContext.RequestServices.GetService(typeof(PethubContext)) as PethubContext;
+                if (dbContext != null)
+                {
+                    var user = dbContext.Account.Find(accountId.Value);
+                    if (user == null || user.AccountStatus == "Banned")
+                    {
+                        debugLogger?.LogWarning("🚫 [AuthCheck-BANNED] User {AccountId} is banned or deleted. Destroying session.", accountId);
+                        HttpContext.Session.Clear();
+                        context.Result = RedirectToPage("/Login");
+                        return;
+                    }
+                }
+                // ====================================================================
 
                 Logger?.LogDebug("AuthenticatedPageModel: User authenticated with AccountId = {AccountId}", accountId);
                 debugLogger?.LogInformation("🔍 [AuthCheck-PASS] Authentication successful, AccountId={AccountId}", accountId);

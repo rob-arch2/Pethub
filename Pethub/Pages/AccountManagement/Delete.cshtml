@@ -2,109 +2,72 @@
 @model Pethub.Pages.AccountManagement.DeleteModel
 @{
     ViewData["Title"] = "Delete Account";
-    Layout = null;
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Delete Account — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Delete Account</h4>
+    <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to List</a>
+</div>
 
-    <div class="admin-wrapper">
+<div class="admin-table-container">
 
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="admin-role-badge">Admin</div>
-                <nav class="admin-nav">
-                    <a href="/Admin/Dashboard" class="admin-nav-item">Dashboard</a>
-                    <a href="/AccountManagement/Index" class="admin-nav-item active">Account Management</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
-            </div>
-        </aside>
-
-        <main class="admin-main">
-
-                <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Delete Account</h4>
-                <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to List</a>
-            </div>
-
-            <div class="admin-table-container">
-
-                <div class="alert alert-danger mb-4" style="max-width:600px;">
-                    You are about to permanently delete this account. This cannot be undone.
-                </div>
-
-                <div class="dash-card" style="max-width:600px; border: 1px solid #ffcdd2;">
-
-                    <!-- Avatar + name header -->
-                    <div class="admin-view-poster mb-4">
-                        <div class="admin-view-avatar" style="background:#c62828;">
-                            @Model.Account.Username[0].ToString().ToUpper()
-                        </div>
-                        <div>
-                            <div class="fw-bold fs-5">@Model.Account.Username</div>
-                            <div class="text-muted small">@Model.Account.Email</div>
-                        </div>
-                        <div class="ms-auto">
-                            @if (Model.Account.Gender == "Male")
-                            {
-                                <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
-                            }
-                            else
-                            {
-                                <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
-                            }
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4 text-muted">Address</dt>
-                        <dd class="col-sm-8">@Model.Account.Address</dd>
-
-                        <dt class="col-sm-4 text-muted">Contact</dt>
-                        <dd class="col-sm-8">@Model.Account.Contact</dd>
-
-                        <dt class="col-sm-4 text-muted">Birthday</dt>
-                        <dd class="col-sm-8">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
-
-                        <dt class="col-sm-4 text-muted">Age</dt>
-                        <dd class="col-sm-8">@Model.Account.Age yrs old</dd>
-                    </dl>
-
-                    <hr />
-
-                    <form method="post" class="d-flex gap-2">
-                        <input type="hidden" asp-for="Account.Id" />
-                        <button type="submit" class="action-btn action-reject" style="padding:10px 24px;font-size:14px;">
-                            Yes, Delete
-                        </button>
-                        <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:10px 24px;font-size:14px;">
-                            Cancel
-                        </a>
-                    </form>
-
-                </div>
-            </div>
-
-        </main>
+    <div class="alert alert-danger mb-4 shadow-sm" style="max-width:600px;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> You are about to permanently delete this account. This cannot be undone.
     </div>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="dash-card" style="max-width:600px; border: 1px solid #ffcdd2;">
+
+        <div class="admin-view-poster mb-4">
+            <div class="admin-view-avatar" style="background:#c62828;">
+                @Model.Account.Username[0].ToString().ToUpper()
+            </div>
+            <div>
+                <div class="fw-bold fs-5">@Model.Account.Username</div>
+                <div class="text-muted small">@Model.Account.Email</div>
+            </div>
+            <div class="ms-auto">
+                @if (Model.Account.Gender == "Male")
+                {
+                    <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
+                }
+                else
+                {
+                    <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
+                }
+            </div>
+        </div>
+
+        <hr />
+
+        <dl class="row mb-0">
+            <dt class="col-sm-4 text-muted">Address</dt>
+            <dd class="col-sm-8">@Model.Account.Address</dd>
+
+            <dt class="col-sm-4 text-muted">Contact</dt>
+            <dd class="col-sm-8">@Model.Account.Contact</dd>
+
+            <dt class="col-sm-4 text-muted">Birthday</dt>
+            <dd class="col-sm-8">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
+
+            <dt class="col-sm-4 text-muted">Age</dt>
+            <dd class="col-sm-8">@Model.Account.Age yrs old</dd>
+
+            <dt class="col-sm-4 text-muted">Status</dt>
+            <dd class="col-sm-8">@Model.Account.AccountStatus</dd>
+        </dl>
+
+        <hr />
+
+        <form method="post" class="d-flex gap-2">
+            <input type="hidden" asp-for="Account.Id" />
+            <button type="submit" class="action-btn action-reject" style="padding:10px 24px;font-size:14px;">
+                Yes, Delete
+            </button>
+            <a href="/AccountManagement/Index" class="action-btn action-view text-decoration-none" style="padding:10px 24px;font-size:14px;">
+                Cancel
+            </a>
+        </form>
+
+    </div>
+</div>

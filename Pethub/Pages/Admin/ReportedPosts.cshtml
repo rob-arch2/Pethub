@@ -57,7 +57,15 @@
     </div>
 
     <div class="dash-card">
-        <div class="dash-card-title border-bottom pb-3 mb-0">Actionable Reports</div>
+        <div class="dash-card-title border-bottom pb-3 mb-0 d-flex justify-content-between align-items-center">
+            <span>Actionable Reports</span>
+
+            <div class="d-flex gap-2">
+                <a href="?Filter=Active" class="btn btn-sm @(Model.Filter == "Active" ? "btn-primary" : "btn-outline-primary")">Active</a>
+                <a href="?Filter=Dismissed" class="btn btn-sm @(Model.Filter == "Dismissed" ? "btn-warning" : "btn-outline-warning")">Dismissed</a>
+                <a href="?Filter=Banned" class="btn btn-sm @(Model.Filter == "Banned" ? "btn-danger" : "btn-outline-danger")">Banned Users</a>
+            </div>
+        </div>
 
         <div class="table-responsive">
             <table class="table align-middle admin-table mb-0">
@@ -84,9 +92,17 @@
                             </td>
                             <td class="px-4 text-end">
                                 <form method="post" class="d-inline-flex gap-2">
-                                    <button type="submit" asp-page-handler="Dismiss" asp-route-reportId="@item.Id" class="action-btn action-view">Dismiss</button>
-                                    <button type="submit" asp-page-handler="DeletePost" asp-route-postId="@item.PostId" class="action-btn action-reject" onclick="return confirm('Delete this post permanently?');">Delete Post</button>
-                                    <button type="submit" asp-page-handler="BanUser" asp-route-accountId="@item.Post.AccountId" class="action-btn text-white" style="background: #1e2125;" onclick="return confirm('Ban the author of this post?');">Ban Author</button>
+                                    <input type="hidden" name="Filter" value="@Model.Filter" />
+
+                                    @if (Model.Filter == "Active")
+                                    {
+                                        <button type="submit" asp-page-handler="Dismiss" asp-route-reportId="@item.Id" class="action-btn action-view">Dismiss</button>
+                                        <button type="submit" asp-page-handler="DeletePost" asp-route-postId="@item.PostId" class="action-btn action-reject" onclick="return confirm('Delete this post permanently?');">Delete Post</button>
+                                    }
+
+                                    <button type="submit" asp-page-handler="ToggleBanUser" asp-route-accountId="@item.Post.AccountId" class="action-btn text-white" style="background: #1e2125;" onclick="return confirm('Toggle the ban status of this author?');">
+                                        @(item.Post.Account.AccountStatus == "Banned" ? "Unban Author" : "Ban Author")
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -96,7 +112,7 @@
                         <tr>
                             <td colspan="5" class="text-center py-5">
                                 <div class="text-muted fs-1 mb-2"><i class="bi bi-shield-check"></i></div>
-                                <div class="text-muted fw-semibold">All clear! No reported posts at this time.</div>
+                                <div class="text-muted fw-semibold">All clear! No reports in this view.</div>
                             </td>
                         </tr>
                     }

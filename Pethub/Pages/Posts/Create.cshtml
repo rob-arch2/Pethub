@@ -2,155 +2,101 @@
 @model Pethub.Pages.Posts.CreateModel
 @{
     ViewData["Title"] = "Create Post";
-    Layout = null;
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Post — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-    <link rel="stylesheet" href="~/css/userdash.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Create a Post</h4>
+    <a href="/Landing" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to Newsfeed</a>
+</div>
 
-    <div class="user-wrapper">
+<div class="admin-table-container">
+    <div class="dash-card" style="max-width:640px;">
 
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="user-role-badge">User</div>
-                <nav class="admin-nav">
-                    <a href="/Landing" class="admin-nav-item">Newsfeed</a>
-                    <a href="/Posts/Create" class="admin-nav-item active">Create Post</a>
-                    <a href="/UserDashboard/Index" class="admin-nav-item">My Profile</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
-            </div>
-        </aside>
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mb-3">@Model.ErrorMessage</div>
+        }
 
-        <main class="user-main">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Create a Post</h4>
-                <a href="/Landing" class="action-btn action-view"
-                   style="padding:8px 16px;font-size:13px;">Back to Newsfeed</a>
+            <div class="mb-3">
+                <label asp-for="Post.Title" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Post.Title" class="form-control" placeholder="e.g. Golden Retriever looking for a home" />
+                <span asp-validation-for="Post.Title" class="text-danger small"></span>
             </div>
 
-            <div class="admin-table-container">
-                <div class="dash-card" style="max-width:640px;">
+            <div class="mb-3">
+                <label asp-for="Post.Category" class="form-label fw-semibold">Category</label>
+                <span class="text-danger">*</span>
+                <select asp-for="Post.Category" class="form-select">
+                    <option value="">— Select Category —</option>
+                    <option value="Adoption">Adoption</option>
+                    <option value="Lost Pet">Lost Pet</option>
+                    <option value="For Sale">For Sale</option>
+                    <option value="Found Pet">Found Pet</option>
+                </select>
+                <span asp-validation-for="Post.Category" class="text-danger small"></span>
+            </div>
 
-                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                    {
-                        <div class="alert alert-danger mb-3">@Model.ErrorMessage</div>
-                    }
+            <div class="mb-3">
+                <label asp-for="Post.Description" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <textarea asp-for="Post.Description" class="form-control" rows="4" placeholder="Describe your post in detail..."></textarea>
+                <span asp-validation-for="Post.Description" class="text-danger small"></span>
+            </div>
 
-                    <form method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+            <div class="mb-3">
+                <label asp-for="Post.Location" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Post.Location" class="form-control" placeholder="e.g. Cebu City, Lahug" />
+                <span asp-validation-for="Post.Location" class="text-danger small"></span>
+            </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Post.Title" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Post.Title" class="form-control"
-                                   placeholder="e.g. Golden Retriever looking for a home" />
-                            <span asp-validation-for="Post.Title" class="text-danger small"></span>
-                        </div>
+            <div class="mb-3">
+                <label asp-for="Post.Price" class="form-label fw-semibold">
+                    Price <span class="text-muted small fw-normal">(leave blank if free)</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">₱</span>
+                    <input asp-for="Post.Price" type="number" class="form-control" placeholder="0" min="0" step="1" />
+                </div>
+                <span asp-validation-for="Post.Price" class="text-danger small"></span>
+            </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Post.Category" class="form-label fw-semibold">Category</label>
-                            <span class="text-danger">*</span>
-                            <select asp-for="Post.Category" class="form-select">
-                                <option value="">— Select Category —</option>
-                                <option value="Adoption">Adoption</option>
-                                <option value="Lost Pet">Lost Pet</option>
-                                <option value="For Sale">For Sale</option>
-                                <option value="Found Pet">Found Pet</option>
-                            </select>
-                            <span asp-validation-for="Post.Category" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Post.Description" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <textarea asp-for="Post.Description" class="form-control" rows="4"
-                                      placeholder="Describe your post in detail..."></textarea>
-                            <span asp-validation-for="Post.Description" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Post.Location" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Post.Location" class="form-control"
-                                   placeholder="e.g. Cebu City, Lahug" />
-                            <span asp-validation-for="Post.Location" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Post.Price" class="form-label fw-semibold">
-                                Price
-                                <span class="text-muted small fw-normal">(leave blank if free)</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text">₱</span>
-                                <input asp-for="Post.Price" type="number" class="form-control"
-                                       placeholder="0" min="0" step="1" />
-                            </div>
-                            <span asp-validation-for="Post.Price" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="imageFile" class="form-label fw-semibold">
-                                Photo
-                                <span class="text-muted small fw-normal">(optional · max 5 MB)</span>
-                            </label>
-                            <input type="file" id="imageFile" name="imageFile"
-                                   class="form-control" accept="image/*"
-                                   onchange="previewImage(this)" />
-                            <!-- Live preview rendered via JS FileReader -->
-                            <div id="imgPreviewWrap" class="mt-2" style="display:none;">
-                                <img id="imgPreview" src="#" alt="Preview"
-                                     style="max-width:100%;max-height:240px;border-radius:8px;object-fit:cover;" />
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="action-btn action-approve"
-                                    style="padding:10px 24px;font-size:14px;">
-                                Publish Post
-                            </button>
-                            <a href="/Landing" class="action-btn action-view"
-                               style="padding:10px 24px;font-size:14px;">
-                                Cancel
-                            </a>
-                        </div>
-                    </form>
-
+            <div class="mb-4">
+                <label for="imageFile" class="form-label fw-semibold">
+                    Photo <span class="text-muted small fw-normal">(optional · max 5 MB)</span>
+                </label>
+                <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
+                <div id="imgPreviewWrap" class="mt-2" style="display:none;">
+                    <img id="imgPreview" src="#" alt="Preview" style="max-width:100%;max-height:240px;border-radius:8px;object-fit:cover;" />
                 </div>
             </div>
-        </main>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="action-btn action-approve" style="padding:10px 24px;font-size:14px;">Publish Post</button>
+                <a href="/Landing" class="action-btn action-view" style="padding:10px 24px;font-size:14px;">Cancel</a>
+            </div>
+        </form>
+
     </div>
+</div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
-        // Live image preview using FileReader (DOM — no upload until form submit)
         function previewImage(input) {
-            const wrap    = document.getElementById('imgPreviewWrap');
+            const wrap = document.getElementById('imgPreviewWrap');
             const preview = document.getElementById('imgPreview');
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = e => {
-                    preview.src       = e.target.result;
+                    preview.src = e.target.result;
                     wrap.style.display = 'block';
                 };
                 reader.readAsDataURL(input.files[0]);
@@ -159,5 +105,4 @@
             }
         }
     </script>
-</body>
-</html>
+}

@@ -2,124 +2,91 @@
 @model Pethub.Pages.PetManagement.CreateModel
 @{
     ViewData["Title"] = "Add New Pet";
-    Layout = null;
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Pet — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-    <link rel="stylesheet" href="~/css/userdash.css" />
-</head>
-<body>
-    <div class="user-wrapper">
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="user-role-badge">User</div>
-                <nav class="admin-nav">
-                    <a href="/Landing" class="admin-nav-item">Newsfeed</a>
-                    <a href="/Posts/Create" class="admin-nav-item">Create Post</a>
-                    <a href="/PetManagement/Index" class="admin-nav-item active">My Pets</a>
-                    <a href="/UserDashboard/Index" class="admin-nav-item">My Profile</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
-            </div>
-        </aside>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Add a New Pet</h4>
+    <a href="/PetManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px; text-decoration:none;">Back to List</a>
+</div>
 
-        <main class="user-main">
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Add a New Pet</h4>
-                <a href="/PetManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px; text-decoration:none;">Back to List</a>
+<div class="admin-table-container">
+    <div class="dash-card" style="max-width:640px;">
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger mb-3">@Model.ErrorMessage</div>
+        }
+
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Pet.Name" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Pet.Name" class="form-control" placeholder="e.g. Bella" />
+                <span asp-validation-for="Pet.Name" class="text-danger small"></span>
             </div>
 
-            <div class="admin-table-container">
-                <div class="dash-card" style="max-width:640px;">
-                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                    {
-                        <div class="alert alert-danger mb-3">@Model.ErrorMessage</div>
-                    }
-
-                    <form method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="Pet.Name" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Pet.Name" class="form-control" placeholder="e.g. Bella" />
-                            <span asp-validation-for="Pet.Name" class="text-danger small"></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Pet.Species" class="form-label fw-semibold"></label>
-                                <span class="text-danger">*</span>
-                                <select asp-for="Pet.Species" class="form-select">
-                                    <option value="">— Select Species —</option>
-                                    <option value="Dog">Dog</option>
-                                    <option value="Cat">Cat</option>
-                                    <option value="Bird">Bird</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                <span asp-validation-for="Pet.Species" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Pet.Breed" class="form-label fw-semibold"></label>
-                                <input asp-for="Pet.Breed" class="form-control" placeholder="e.g. Golden Retriever" />
-                                <span asp-validation-for="Pet.Breed" class="text-danger small"></span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Pet.Age" class="form-label fw-semibold"></label>
-                                <input asp-for="Pet.Age" class="form-control" type="number" min="0" />
-                                <span asp-validation-for="Pet.Age" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Pet.VaccinationStatus" class="form-label fw-semibold">Vaccination Status</label>
-                                <select asp-for="Pet.VaccinationStatus" class="form-select">
-                                    <option value="">— Select Status —</option>
-                                    <option value="Fully Vaccinated">Fully Vaccinated</option>
-                                    <option value="Partially Vaccinated">Partially Vaccinated</option>
-                                    <option value="Unvaccinated">Unvaccinated</option>
-                                </select>
-                                <span asp-validation-for="Pet.VaccinationStatus" class="text-danger small"></span>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="imageFile" class="form-label fw-semibold">
-                                Pet Photo <span class="text-muted small fw-normal">(optional · max 5 MB)</span>
-                            </label>
-                            <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
-                            <div id="imgPreviewWrap" class="mt-2" style="display:none;">
-                                <img id="imgPreview" src="#" alt="Preview" style="max-width:100%;max-height:240px;border-radius:8px;object-fit:cover;" />
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="action-btn action-approve" style="padding:10px 24px;font-size:14px;">Save Pet</button>
-                            <a href="/PetManagement/Index" class="action-btn action-view" style="padding:10px 24px;font-size:14px; text-decoration: none;">Cancel</a>
-                        </div>
-                    </form>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.Species" class="form-label fw-semibold"></label>
+                    <span class="text-danger">*</span>
+                    <select asp-for="Pet.Species" class="form-select">
+                        <option value="">— Select Species —</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
+                        <option value="Bird">Bird</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="Pet.Species" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.Breed" class="form-label fw-semibold"></label>
+                    <input asp-for="Pet.Breed" class="form-control" placeholder="e.g. Golden Retriever" />
+                    <span asp-validation-for="Pet.Breed" class="text-danger small"></span>
                 </div>
             </div>
-        </main>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.Age" class="form-label fw-semibold"></label>
+                    <input asp-for="Pet.Age" class="form-control" type="number" min="0" />
+                    <span asp-validation-for="Pet.Age" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.VaccinationStatus" class="form-label fw-semibold">Vaccination Status</label>
+                    <select asp-for="Pet.VaccinationStatus" class="form-select">
+                        <option value="">— Select Status —</option>
+                        <option value="Fully Vaccinated">Fully Vaccinated</option>
+                        <option value="Partially Vaccinated">Partially Vaccinated</option>
+                        <option value="Unvaccinated">Unvaccinated</option>
+                    </select>
+                    <span asp-validation-for="Pet.VaccinationStatus" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="imageFile" class="form-label fw-semibold">
+                    Pet Photo <span class="text-muted small fw-normal">(optional · max 5 MB)</span>
+                </label>
+                <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
+                <div id="imgPreviewWrap" class="mt-2" style="display:none;">
+                    <img id="imgPreview" src="#" alt="Preview" style="max-width:100%;max-height:240px;border-radius:8px;object-fit:cover;" />
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="action-btn action-approve" style="padding:10px 24px;font-size:14px;">Save Pet</button>
+                <a href="/PetManagement/Index" class="action-btn action-view" style="padding:10px 24px;font-size:14px; text-decoration: none;">Cancel</a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
         function previewImage(input) {
             const wrap = document.getElementById('imgPreviewWrap');
@@ -136,5 +103,4 @@
             }
         }
     </script>
-</body>
-</html>
+}

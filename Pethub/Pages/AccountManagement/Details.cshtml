@@ -2,107 +2,79 @@
 @model Pethub.Pages.AccountManagement.DetailsModel
 @{
     ViewData["Title"] = "Account Details";
-    Layout = null;
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Account Details — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Account Details</h4>
+    <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to List</a>
+</div>
 
-    <div class="admin-wrapper">
+<div class="admin-table-container">
+    <div class="dash-card" style="max-width:600px;">
 
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="admin-role-badge">Admin</div>
-                <nav class="admin-nav">
-                    <a href="/Admin/Dashboard" class="admin-nav-item">Dashboard</a>
-                    <a href="/AccountManagement/Index" class="admin-nav-item active">Account Management</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
+        <div class="admin-view-poster mb-4">
+            <div class="admin-view-avatar">
+                @Model.Account.Username[0].ToString().ToUpper()
             </div>
-        </aside>
-
-        <main class="admin-main">
-
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Account Details</h4>
-                <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to List</a>
+            <div>
+                <div class="fw-bold fs-5">@Model.Account.Username</div>
+                <div class="text-muted small">@Model.Account.Email</div>
             </div>
+            <div class="ms-auto">
+                @if (Model.Account.Gender == "Male")
+                {
+                    <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
+                }
+                else
+                {
+                    <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
+                }
+            </div>
+        </div>
 
-            <div class="admin-table-container">
-                <div class="dash-card" style="max-width:600px;">
+        <hr />
 
-                    <!-- Avatar + name header -->
-                    <div class="admin-view-poster mb-4">
-                        <div class="admin-view-avatar">
-                            @Model.Account.Username[0].ToString().ToUpper()
-                        </div>
-                        <div>
-                            <div class="fw-bold fs-5">@Model.Account.Username</div>
-                            <div class="text-muted small">@Model.Account.Email</div>
-                        </div>
-                        <div class="ms-auto">
-                            @if (Model.Account.Gender == "Male")
-                            {
-                                <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
-                            }
-                            else
-                            {
-                                <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
-                            }
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4 text-muted">Password (hash)</dt>
-                        <dd class="col-sm-8">
-                            <div class="bg-light text-muted" style="font-size:11px;word-break:break-all;padding:6px 10px;border-radius:6px;">
-                                @Model.HashedPassword
-                            </div>
-                        </dd>
-
-                        <dt class="col-sm-4 text-muted mt-2">Address</dt>
-                        <dd class="col-sm-8 mt-2">@Model.Account.Address</dd>
-
-                        <dt class="col-sm-4 text-muted">Contact</dt>
-                        <dd class="col-sm-8">@Model.Account.Contact</dd>
-
-                        <dt class="col-sm-4 text-muted">Birthday</dt>
-                        <dd class="col-sm-8">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
-
-                        <dt class="col-sm-4 text-muted">Age</dt>
-                        <dd class="col-sm-8">@Model.Account.Age yrs old</dd>
-                    </dl>
-
-                    <hr />
-
-                    <div class="d-flex gap-2">
-                        <a asp-page="./Edit" asp-route-id="@Model.Account.Id" class="action-btn action-approve" style="padding:10px 24px;font-size:14px;">Edit</a>
-                        <a asp-page="./Delete" asp-route-id="@Model.Account.Id" class="action-btn action-reject" style="padding:10px 24px;font-size:14px;">Delete</a>
-                        <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:10px 24px;font-size:14px;">Back</a>
-                    </div>
-
+        <dl class="row mb-0">
+            <dt class="col-sm-4 text-muted">Password (hash)</dt>
+            <dd class="col-sm-8">
+                <div class="bg-light text-muted" style="font-size:11px;word-break:break-all;padding:6px 10px;border-radius:6px;">
+                    @Model.HashedPassword
                 </div>
-            </div>
+            </dd>
 
-        </main>
+            <dt class="col-sm-4 text-muted mt-2">Address</dt>
+            <dd class="col-sm-8 mt-2">@Model.Account.Address</dd>
+
+            <dt class="col-sm-4 text-muted">Contact</dt>
+            <dd class="col-sm-8">@Model.Account.Contact</dd>
+
+            <dt class="col-sm-4 text-muted">Birthday</dt>
+            <dd class="col-sm-8">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
+
+            <dt class="col-sm-4 text-muted">Age</dt>
+            <dd class="col-sm-8">@Model.Account.Age yrs old</dd>
+
+            <dt class="col-sm-4 text-muted">Status</dt>
+            <dd class="col-sm-8">
+                @if (Model.Account.AccountStatus == "Banned")
+                {
+                    <span class="badge bg-danger">Banned</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+            </dd>
+        </dl>
+
+        <hr />
+
+        <div class="d-flex gap-2">
+            <a asp-page="./Edit" asp-route-id="@Model.Account.Id" class="action-btn action-approve text-decoration-none" style="padding:10px 24px;font-size:14px;">Edit</a>
+            <a asp-page="./Delete" asp-route-id="@Model.Account.Id" class="action-btn action-reject text-decoration-none" style="padding:10px 24px;font-size:14px;">Delete</a>
+            <a href="/AccountManagement/Index" class="action-btn action-view text-decoration-none" style="padding:10px 24px;font-size:14px;">Back</a>
+        </div>
+
     </div>
-
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>

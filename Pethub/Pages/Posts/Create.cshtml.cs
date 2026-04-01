@@ -5,8 +5,8 @@ using Pethub.Models;
 
 namespace Pethub.Pages.Posts
 {
-    // The limits MUST be at the class level to prevent silent rejection of the image
-    [RequestSizeLimit(10 * 1024 * 1024)]           // 10 MB — matches Kestrel cap
+    // Upload limits MUST be at the class level
+    [RequestSizeLimit(10 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 10 * 1024 * 1024)]
     public class CreateModel : AuthenticatedPageModel
     {
@@ -24,12 +24,36 @@ namespace Pethub.Pages.Posts
 
         public string? ErrorMessage { get; set; }
 
-        public IActionResult OnGet() => Page();
+        public async Task<IActionResult> OnGetAsync()
+        {
+            // Verify if user is banned
+            if (CurrentAccountId.HasValue)
+            {
+                var account = await _context.Account.FindAsync(CurrentAccountId.Value);
+                if (account != null && account.AccountStatus == "Banned")
+                {
+                    TempData["Error"] = "Banned users cannot create posts.";
+                    return RedirectToPage("/Landing");
+                }
+            }
+
+            return Page();
+        }
 
         public async Task<IActionResult> OnPostAsync(IFormFile? imageFile)
         {
-            // These fields are set server-side or are navigation properties —
-            // remove them from ModelState so they never block form validation.
+            // Verify if user is banned before accepting submission
+            if (CurrentAccountId.HasValue)
+            {
+                var account = await _context.Account.FindAsync(CurrentAccountId.Value);
+                if (account != null && account.AccountStatus == "Banned")
+                {
+                    TempData["Error"] = "Banned users cannot create posts.";
+                    return RedirectToPage("/Landing");
+                }
+            }
+
+            // Remove server-controlled fields from model validation
             ModelState.Remove("Post.Account");
             ModelState.Remove("Post.Reports");
             ModelState.Remove("Post.Status");
@@ -40,17 +64,17 @@ namespace Pethub.Pages.Posts
             if (!ModelState.IsValid)
                 return Page();
 
-            // ── Optional image upload ────────────────────────────────────────
+            // Handle optional image upload
             if (imageFile != null && imageFile.Length > 0)
             {
-                // Enforce 5 MB cap in code (Kestrel cap is 10 MB headroom)
+                // Enforce 5 MB cap
                 if (imageFile.Length > 5 * 1024 * 1024)
                 {
                     ErrorMessage = "Image must be 5 MB or smaller.";
                     return Page();
                 }
 
-                // Only allow common image MIME types
+                // Restrict MIME types
                 var allowed = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
                 if (!allowed.Contains(imageFile.ContentType.ToLowerInvariant()))
                 {
@@ -60,8 +84,7 @@ namespace Pethub.Pages.Posts
 
                 try
                 {
-                    var webRoot = _env.WebRootPath
-                                     ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                     var uploadsDir = Path.Combine(webRoot, "uploads");
 
                     if (!Directory.Exists(uploadsDir))
@@ -76,7 +99,6 @@ namespace Pethub.Pages.Posts
                     await using var stream = new FileStream(filePath, FileMode.Create);
                     await imageFile.CopyToAsync(stream);
 
-                    // Save the correct web path to the database (without wwwroot)
                     Post.ImagePath = $"/uploads/{fileName}";
                 }
                 catch
@@ -86,7 +108,7 @@ namespace Pethub.Pages.Posts
                 }
             }
 
-            // ── Set all server-controlled fields ────────────────────────────
+            // Bind server-controlled data
             Post.AccountId = CurrentAccountId ?? 0;
             Post.Status = "Active";
             Post.CreatedAt = DateTime.Now;

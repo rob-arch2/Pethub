@@ -1,0 +1,42 @@
+﻿@page
+@model Pethub.Pages.UserDashboard.ActivityLogsModel
+@{
+    ViewData["Title"] = "My Activity Logs";
+    Layout = "_Layout";
+}
+
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">My Activity Logs</h4>
+</div>
+
+<div class="admin-table-container">
+    <div class="dash-card">
+        <div class="table-responsive">
+            <table class="table align-middle admin-table mb-0">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Date & Time</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Action</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.Logs)
+                    {
+                        <tr style="border-bottom: 1px solid #f0f2f5;">
+                            <td class="text-muted px-4">@log.Timestamp.ToString("MMM dd, yyyy hh:mm tt")</td>
+                            <td class="fw-semibold px-4" style="color: #2c3e50;">@log.Action</td>
+                            <td class="text-muted px-4">@log.Details</td>
+                        </tr>
+                    }
+                    @if (!Model.Logs.Any())
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted fw-semibold">No activity recorded yet.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

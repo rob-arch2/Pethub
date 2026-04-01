@@ -1,61 +1,80 @@
 ﻿@page
-@model Pethub.Pages.PetManagement.DetailsModel
-
+@model Pethub.Pages.AccountManagement.DetailsModel
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Account Details";
+    Layout = "_Layout";
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Pet</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Species)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Species)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Breed)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Breed)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Age)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Age)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.VaccinationStatus)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.VaccinationStatus)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.ImagePath)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.ImagePath)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Account)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Account.Address)
-        </dd>
-    </dl>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Account Details</h4>
+    <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to List</a>
 </div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.Pet.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+
+<div class="admin-table-container">
+    <div class="dash-card" style="max-width:600px;">
+
+        <div class="admin-view-poster mb-4">
+            <div class="admin-view-avatar">
+                @Model.Account.Username[0].ToString().ToUpper()
+            </div>
+            <div>
+                <div class="fw-bold fs-5">@Model.Account.Username</div>
+                <div class="text-muted small">@Model.Account.Email</div>
+            </div>
+            <div class="ms-auto">
+                @if (Model.Account.Gender == "Male")
+                {
+                    <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
+                }
+                else
+                {
+                    <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
+                }
+            </div>
+        </div>
+
+        <hr />
+
+        <dl class="row mb-0">
+            <dt class="col-sm-4 text-muted">Password (hash)</dt>
+            <dd class="col-sm-8">
+                <div class="bg-light text-muted" style="font-size:11px;word-break:break-all;padding:6px 10px;border-radius:6px;">
+                    @Model.HashedPassword
+                </div>
+            </dd>
+
+            <dt class="col-sm-4 text-muted mt-2">Address</dt>
+            <dd class="col-sm-8 mt-2">@Model.Account.Address</dd>
+
+            <dt class="col-sm-4 text-muted">Contact</dt>
+            <dd class="col-sm-8">@Model.Account.Contact</dd>
+
+            <dt class="col-sm-4 text-muted">Birthday</dt>
+            <dd class="col-sm-8">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
+
+            <dt class="col-sm-4 text-muted">Age</dt>
+            <dd class="col-sm-8">@Model.Account.Age yrs old</dd>
+
+            <dt class="col-sm-4 text-muted">Status</dt>
+            <dd class="col-sm-8">
+                @if (Model.Account.AccountStatus == "Banned")
+                {
+                    <span class="badge bg-danger">Banned</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+            </dd>
+        </dl>
+
+        <hr />
+
+        <div class="d-flex gap-2">
+            <a asp-page="./Edit" asp-route-id="@Model.Account.Id" class="action-btn action-approve text-decoration-none" style="padding:10px 24px;font-size:14px;">Edit</a>
+            <a asp-page="./Delete" asp-route-id="@Model.Account.Id" class="action-btn action-reject text-decoration-none" style="padding:10px 24px;font-size:14px;">Delete</a>
+            <a href="/AccountManagement/Index" class="action-btn action-view text-decoration-none" style="padding:10px 24px;font-size:14px;">Back</a>
+        </div>
+
+    </div>
 </div>

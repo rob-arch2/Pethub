@@ -10,16 +10,14 @@ namespace Pethub.Pages
     public class LoginModel : PageModel
     {
         private readonly PethubContext _context;
-        private readonly ILogger<LoginModel> _logger;
 
-        // Admin credentials are hardcoded — the admin account doesn't exist in the database
+        // Admin credentials
         private const string AdminUsername = "Admin@pethub.com";
         private const string AdminPassword = "admin123";
 
-        public LoginModel(PethubContext context, ILogger<LoginModel> logger)
+        public LoginModel(PethubContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         [BindProperty] public string Email { get; set; }
@@ -30,85 +28,78 @@ namespace Pethub.Pages
 
         public void OnGet()
         {
-            _logger.LogDebug("LoginModel.OnGet() called");
+            // Initial load
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            _logger.LogDebug("LoginModel.OnPostAsync() started with Email={Email}", Email ?? "null");
-
             try
             {
                 if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
                 {
-                    _logger.LogWarning("Login attempt with missing email or password");
                     ErrorMessage = "Email and password are required.";
                     return Page();
                 }
 
-                // Check admin first before hitting the database
+                // Check admin credentials
                 if (Email.Trim() == AdminUsername && Password == AdminPassword)
                 {
-                    _logger.LogInformation("✓ Admin login successful");
-
                     if (HttpContext?.Session == null)
                     {
-                        _logger.LogError("❌ Session is null for admin login - session middleware may not be configured");
                         ErrorMessage = "Session configuration error. Please contact support.";
                         return Page();
                     }
 
+                    // Setup admin session
                     HttpContext.Session.SetString("AccountRole", "Admin");
                     HttpContext.Session.SetString("AccountUsername", "Admin");
-                    HttpContext.Session.SetInt32("AccountId", 0); // 0 is the admin sentinel value
+                    HttpContext.Session.SetInt32("AccountId", 0);
 
-                    _logger.LogDebug("Admin session variables set successfully");
                     return RedirectToPage("/Admin/Dashboard");
                 }
 
-                // Hash what the user typed, then compare against the stored hash
+                // Hash password and find user
                 string hashedPassword = HashPassword(Password);
-                _logger.LogDebug("Querying database for account with Email={Email}", Email);
-
                 var account = await _context.Account
                     .FirstOrDefaultAsync(a => a.Email == Email && a.Password == hashedPassword);
 
                 if (account == null)
                 {
-                    _logger.LogWarning("Login failed: invalid email or password for Email={Email}", Email);
                     ErrorMessage = "Invalid email or password.";
                     return Page();
                 }
 
-                _logger.LogInformation("✓ User login successful - UserId={UserId}, Username={Username}", 
-                    account.Id, account.Username);
-
                 if (HttpContext?.Session == null)
                 {
-                    _logger.LogError("❌ Session is null for user login - session middleware may not be configured");
                     ErrorMessage = "Session configuration error. Please contact support.";
                     return Page();
                 }
 
-                // Store just enough in the session to identify the user on every page
+                // Setup user session
                 HttpContext.Session.SetInt32("AccountId", account.Id);
                 HttpContext.Session.SetString("AccountUsername", account.Username);
                 HttpContext.Session.SetString("AccountRole", "User");
 
-                _logger.LogDebug("Session variables set for user {UserId}", account.Id);
+                // Check ban status to display the appropriate notification on Landing
+                if (account.AccountStatus == "Banned")
+                {
+                    TempData["BannedPopup"] = "Your account has been banned. You can still browse, but you cannot create new posts.";
+                }
+                else
+                {
+                    TempData["ToastSuccess"] = $"Welcome back, {account.Username}!";
+                }
 
-                TempData["ToastSuccess"] = $"Welcome back, {account.Username}!";
                 return RedirectToPage("/Landing");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogError(ex, "❌ Exception in LoginModel.OnPostAsync()");
                 ErrorMessage = "An error occurred during login. Please try again.";
                 return Page();
             }
         }
 
-        // SHA256 hash — must match how passwords are stored during registration
+        // Hash password to match registration
         private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();

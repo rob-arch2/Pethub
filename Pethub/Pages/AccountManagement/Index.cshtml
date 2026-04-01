@@ -2,98 +2,101 @@
 @model Pethub.Pages.AccountManagement.IndexModel
 @{
     ViewData["Title"] = "Account Management";
-    Layout = null;
+    Layout = "_Layout";
+    var successMsg = TempData["Success"] as string;
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Account Management — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Account Management</h4>
+    <a asp-page="Create" class="action-btn action-approve text-decoration-none" style="padding:8px 16px;font-size:13px;">+ Create New</a>
+</div>
 
-    <div class="admin-wrapper">
+<div class="admin-table-container">
+    @if (!string.IsNullOrEmpty(successMsg))
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" style="background-color: #e6f4ea; color: #2e7d32;">
+            <i class="bi bi-check-circle-fill me-2"></i> @successMsg
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="admin-role-badge">Admin</div>
-                <nav class="admin-nav">
-                    <a href="/Admin/Dashboard" class="admin-nav-item">Dashboard</a>
-                    <a href="/AccountManagement/Index" class="admin-nav-item active">Account Management</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
-            </div>
-        </aside>
+    <div class="d-flex gap-2 mb-3">
+        <a href="?StatusFilter=All" class="btn btn-sm @(Model.StatusFilter == "All" ? "btn-primary" : "btn-outline-primary")">All</a>
+        <a href="?StatusFilter=Active" class="btn btn-sm @(Model.StatusFilter == "Active" ? "btn-success" : "btn-outline-success")">Active</a>
+        <a href="?StatusFilter=Banned" class="btn btn-sm @(Model.StatusFilter == "Banned" ? "btn-danger" : "btn-outline-danger")">Banned</a>
+    </div>
 
-        <main class="admin-main">
+    <div class="dash-card">
+        @if (!Model.Account.Any())
+        {
+            <div class="text-center py-5 text-muted fw-semibold">No accounts found matching this filter.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle admin-table mb-0">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3">USERNAME</th>
+                            <th class="py-3">EMAIL</th>
+                            <th class="py-3">GENDER</th>
+                            <th class="py-3">AGE</th>
+                            <th class="py-3">STATUS</th>
+                            <th class="py-3 text-center">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Account)
+                        {
+                            <tr style="border-bottom: 1px solid #f0f2f5;">
+                                <td class="text-muted px-4">@item.Id</td>
+                                <td class="fw-semibold" style="color: #2c3e50;">@item.Username</td>
+                                <td class="text-muted">@item.Email</td>
+                                <td>
+                                    @if (item.Gender == "Male")
+                                    {
+                                        <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
+                                    }
+                                </td>
+                                <td>@item.Age yrs</td>
+                                <td>
+                                    @if (item.AccountStatus == "Banned")
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger">Banned</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success">Active</span>
+                                    }
+                                </td>
+                                <td class="text-center d-flex gap-2 justify-content-center">
+                                    <a asp-page="./Details" asp-route-id="@item.Id" class="action-btn action-view text-decoration-none py-1 px-2" style="font-size: 12px;">Details</a>
+                                    <a asp-page="./Edit" asp-route-id="@item.Id" class="action-btn action-approve text-decoration-none py-1 px-2" style="font-size: 12px;">Edit</a>
 
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Account Management</h4>
-                <a asp-page="Create" class="action-btn action-approve" style="padding:8px 16px;font-size:13px;">+ Create New</a>
-            </div>
-
-            <div class="admin-table-container">
-                @if (!Model.Account.Any())
-                {
-                    <div class="admin-empty">No accounts found.</div>
-                }
-                else
-                {
-                    <table class="table admin-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>USERNAME</th>
-                                <th>EMAIL</th>
-                                <th>GENDER</th>
-                                <th>CONTACT</th>
-                                <th>AGE</th>
-                                <th class="text-center">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model.Account)
-                            {
-                                <tr>
-                                    <td class="text-muted">@item.Id</td>
-                                    <td class="fw-semibold">@item.Username</td>
-                                    <td class="text-muted">@item.Email</td>
-                                    <td>
-                                        @if (item.Gender == "Male")
+                                    <form method="post" asp-page-handler="ToggleBan" asp-route-id="@item.Id" style="display:inline; margin: 0;">
+                                        <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
+                                        @if (item.AccountStatus == "Banned")
                                         {
-                                            <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
+                                            <button type="submit" class="action-btn" style="background:#28a745; color:white; border:none; padding:4px 8px; font-size:12px; border-radius:4px; cursor:pointer;" onclick="return confirm('Unban this user?');">Unban</button>
                                         }
                                         else
                                         {
-                                            <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
+                                            <button type="submit" class="action-btn action-reject" style="border:none; padding:4px 8px; font-size:12px; border-radius:4px; cursor:pointer;" onclick="return confirm('Ban this user?');">Ban</button>
                                         }
-                                    </td>
-                                    <td>@item.Contact</td>
-                                    <td>@item.Age yrs</td>
-                                    <td class="text-center">
-                                        <a asp-page="./Details" asp-route-id="@item.Id" class="action-btn action-view">Details</a>
-                                        <a asp-page="./Edit" asp-route-id="@item.Id" class="action-btn action-approve">Edit</a>
-                                        <a asp-page="./Delete" asp-route-id="@item.Id" class="action-btn action-reject">Delete</a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-            </div>
-        </main>
-    </div>
+                                    </form>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+                                    <a asp-page="./Delete" asp-route-id="@item.Id" class="action-btn action-reject text-decoration-none py-1 px-2" style="font-size: 12px;">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

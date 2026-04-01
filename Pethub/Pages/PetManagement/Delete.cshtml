@@ -2,63 +2,59 @@
 @model Pethub.Pages.PetManagement.DeleteModel
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Pet";
+    Layout = "_Layout";
 }
 
-<h1>Delete</h1>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Delete Pet</h4>
+    <a href="/PetManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px; text-decoration:none;">Back to List</a>
+</div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Pet</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Species)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Species)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Breed)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Breed)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Age)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Age)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.VaccinationStatus)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.VaccinationStatus)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.ImagePath)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.ImagePath)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Pet.Account)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Pet.Account.Address)
-        </dd>
-    </dl>
-    
-    <form method="post">
-        <input type="hidden" asp-for="Pet.Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-page="./Index">Back to List</a>
-    </form>
+<div class="admin-table-container">
+    <div class="alert alert-danger mb-4 shadow-sm" style="max-width:600px;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> You are about to permanently delete this pet record. This cannot be undone.
+    </div>
+
+    <div class="dash-card" style="max-width:600px; border: 1px solid #ffcdd2;">
+
+        <div class="d-flex align-items-center mb-4">
+            @if (!string.IsNullOrEmpty(Model.Pet.ImagePath))
+            {
+                <img src="@Model.Pet.ImagePath" alt="@Model.Pet.Name" class="rounded border" style="width: 80px; height: 80px; object-fit: cover;" />
+            }
+            else
+            {
+                <div class="rounded border d-flex align-items-center justify-content-center text-muted" style="width: 80px; height: 80px; background-color: #f0f0f0; font-size: 32px;">
+                    🐾
+                </div>
+            }
+            <div class="ms-3">
+                <h4 class="fw-bold mb-1 text-danger">@Model.Pet.Name</h4>
+                <div class="text-muted">@Model.Pet.Species @(!string.IsNullOrEmpty(Model.Pet.Breed) ? "· " + Model.Pet.Breed : "")</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <dl class="row mb-0" style="line-height: 2;">
+            <dt class="col-sm-4 text-muted">Age</dt>
+            <dd class="col-sm-8 fw-semibold">@Model.Pet.Age years</dd>
+
+            <dt class="col-sm-4 text-muted">Vaccination</dt>
+            <dd class="col-sm-8">@Model.Pet.VaccinationStatus</dd>
+        </dl>
+
+        <hr />
+
+        <form method="post" class="d-flex gap-2">
+            <input type="hidden" asp-for="Pet.Id" />
+            <button type="submit" class="action-btn action-reject" style="padding:10px 24px;font-size:14px;">
+                Yes, Delete
+            </button>
+            <a href="/PetManagement/Index" class="action-btn action-view text-decoration-none" style="padding:10px 24px;font-size:14px;">
+                Cancel
+            </a>
+        </form>
+    </div>
 </div>

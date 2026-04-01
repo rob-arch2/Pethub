@@ -1,57 +1,35 @@
 ﻿@page
 @model Pethub.Pages.LandingModel
 @{
-    ViewData["Title"] = "Home";
-    Layout = null;
+    ViewData["Title"] = "Newsfeed";
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PetHub — Newsfeed</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/newsfeed.css" />
-</head>
-<body>
+<link rel="stylesheet" href="~/css/newsfeed.css" />
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">
-            <img src="~/images/paws1.png" alt="paw" />
-            <span>PETHUB</span>
-        </div>
-        <div class="menu">
-            <a href="/Landing" class="menu-active">Home</a>
-            <a href="/Posts/Create">Post an Ad</a>
-        </div>
-        <div class="nav-buttons">
-            <span class="username-display">@Model.AccountUsername</span>
-            <a href="/UserDashboard/Index" class="login-btn">My Profile</a>
-            <a href="/Logout" class="logout-btn">Logout</a>
-        </div>
-    </nav>
+<div class="admin-topbar d-flex justify-content-between align-items-center">
+    <h4 class="admin-topbar-title mb-0">Community Newsfeed</h4>
+    <span class="fw-semibold text-muted">Welcome, @Model.AccountUsername!</span>
+</div>
 
-    <!-- Toast notifications -->
+<div class="admin-table-container">
+
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <!-- Category Filter Bar (DOM-driven, no page reload) -->
-    <div class="filter-bar">
+    <div class="filter-bar mb-4">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="Adoption">🐶 Adoption</button>
         <button class="filter-btn" data-filter="Lost Pet">🔍 Lost Pet</button>
@@ -59,17 +37,13 @@
         <button class="filter-btn" data-filter="Found Pet">🐾 Found Pet</button>
     </div>
 
-    <!-- Posts Feed -->
     <div class="feed-container">
         @if (!Model.Posts.Any())
         {
-            <div class="feed-empty">
+            <div class="feed-empty dash-card text-center py-5">
                 <div style="font-size:56px;margin-bottom:16px;">🐾</div>
-                <p>No posts yet. Be the first to post something!</p>
-                <a href="/Posts/Create" class="filter-btn active"
-                   style="text-decoration:none;display:inline-block;margin-top:8px;">
-                    Create a Post
-                </a>
+                <p class="text-muted fw-semibold">No posts yet. Be the first to post something!</p>
+                <a href="/Posts/Create" class="btn btn-primary mt-2">Create a Post</a>
             </div>
         }
         else
@@ -77,7 +51,7 @@
             <div class="posts-grid" id="postsGrid">
                 @foreach (var post in Model.Posts)
                 {
-                    <div class="post-card" data-category="@post.Category">
+                    <div class="post-card dash-card" data-category="@post.Category">
 
                         @if (!string.IsNullOrEmpty(post.ImagePath))
                         {
@@ -86,40 +60,40 @@
                             </div>
                         }
 
-                        <div class="post-card-body">
+                        <div class="post-card-body p-3">
 
-                            <div class="post-card-header">
+                            <div class="post-card-header d-flex justify-content-between align-items-center mb-2">
                                 <span class="post-category-badge @CategoryClass(post.Category)">
                                     @post.Category
                                 </span>
                                 @if (post.Price.HasValue && post.Price > 0)
                                 {
-                                    <span class="post-price">₱@post.Price.Value.ToString("N0")</span>
+                                    <span class="post-price fw-bold text-success">₱@post.Price.Value.ToString("N0")</span>
                                 }
                                 else
                                 {
-                                    <span class="post-free">Free</span>
+                                    <span class="post-free fw-bold text-secondary">Free</span>
                                 }
                             </div>
 
-                            <h3 class="post-title">@post.Title</h3>
-                            <p class="post-desc">@post.Description</p>
+                            <h5 class="post-title fw-bold mb-1">@post.Title</h5>
+                            <p class="post-desc text-muted small mb-3">@post.Description</p>
 
-                            <div class="post-meta">
+                            <div class="post-meta text-muted small d-flex flex-column gap-1 mb-3">
                                 <span>📍 @post.Location</span>
                                 <span>🐾 @post.Account.Username</span>
-                                <span>@post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                <span>🕒 @post.CreatedAt.ToString("MMM dd, yyyy")</span>
                             </div>
 
                             @* Hide report button on the user's own posts *@
                             @if (post.AccountId != Model.CurrentAccountId)
                             {
-                                <div class="post-card-footer">
-                                    <button class="report-btn"
+                                <div class="post-card-footer border-top pt-2 mt-auto">
+                                    <button class="btn btn-sm btn-outline-danger w-100"
                                             data-bs-toggle="modal"
                                             data-bs-target="#reportModal"
                                             onclick="setReportPost(@post.Id)">
-                                        ⚑ Report
+                                        <i class="bi bi-flag"></i> Report
                                     </button>
                                 </div>
                             }
@@ -130,61 +104,80 @@
             </div>
         }
     </div>
+</div>
 
-    <!-- Report Modal -->
-    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form method="post" asp-page-handler="Report">
+                <input type="hidden" name="postId" id="reportPostId" />
+
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold">Report Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Reason <span class="text-danger">*</span>
+                        </label>
+                        <select name="reasonCategory" class="form-select" required>
+                            <option value="">— Select a reason —</option>
+                            <option value="Spam">Spam</option>
+                            <option value="Abuse">Abuse</option>
+                            <option value="Scam">Scam</option>
+                            <option value="Inappropriate">Inappropriate Content</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Additional Details
+                            <span class="text-muted small fw-normal">(optional)</span>
+                        </label>
+                        <textarea name="reasonDetail" class="form-control" rows="3"
+                                  maxlength="500"
+                                  placeholder="Describe the issue in more detail..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light btn-sm"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-danger btn-sm">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (TempData["BannedPopup"] != null)
+{
+    <div class="modal fade" id="bannedModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form method="post" asp-page-handler="Report">
-                    <input type="hidden" name="postId" id="reportPostId" />
-
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold">Report Post</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Reason <span class="text-danger">*</span>
-                            </label>
-                            <select name="reasonCategory" class="form-select" required>
-                                <option value="">— Select a reason —</option>
-                                <option value="Spam">Spam</option>
-                                <option value="Abuse">Abuse</option>
-                                <option value="Scam">Scam</option>
-                                <option value="Inappropriate">Inappropriate Content</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Additional Details
-                                <span class="text-muted small fw-normal">(optional)</span>
-                            </label>
-                            <textarea name="reasonDetail" class="form-control" rows="3"
-                                      maxlength="500"
-                                      placeholder="Describe the issue in more detail..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm"
-                                data-bs-dismiss="modal">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-danger btn-sm">Submit Report</button>
-                    </div>
-                </form>
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold">Account Restricted</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">@TempData["BannedPopup"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Understood</button>
+                </div>
             </div>
         </div>
     </div>
+}
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@section Scripts {
     <script>
-        // ── DOM-based category filter (no page reload) ──────────────────
+        // DOM-based category filter (no page reload)
         const filterBtns = document.querySelectorAll('.filter-btn');
-        const cards       = document.querySelectorAll('#postsGrid .post-card');
+        const cards = document.querySelectorAll('#postsGrid .post-card');
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', function () {
@@ -193,19 +186,26 @@
 
                 const filter = this.dataset.filter;
                 cards.forEach(card => {
-                    card.style.display =
-                        (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+                    card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
                 });
             });
         });
 
-        // ── Populate hidden postId before the modal opens ───────────────
+        // Populate hidden postId before the modal opens
         function setReportPost(id) {
             document.getElementById('reportPostId').value = id;
         }
+
+        // Show the banned modal if TempData populated it
+        document.addEventListener('DOMContentLoaded', function () {
+            var bannedModalElement = document.getElementById('bannedModal');
+            if (bannedModalElement) {
+                var bannedModal = new bootstrap.Modal(bannedModalElement);
+                bannedModal.show();
+            }
+        });
     </script>
-</body>
-</html>
+}
 
 @functions {
     // Maps a category string to its CSS badge class

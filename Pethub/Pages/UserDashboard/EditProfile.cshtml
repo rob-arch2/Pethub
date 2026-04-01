@@ -2,126 +2,83 @@
 @model Pethub.Pages.UserDashboard.EditProfileModel
 @{
     ViewData["Title"] = "Edit Profile";
-    Layout = null;
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Profile — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-    <link rel="stylesheet" href="~/css/userdash.css" />
-</head>
-<body>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Edit Profile</h4>
+    <a href="/UserDashboard/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to Profile</a>
+</div>
 
-    <div class="user-wrapper">
+<div class="admin-table-container">
+    <div class="dash-card" style="max-width:600px;">
 
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="user-role-badge">User</div>
-                <nav class="admin-nav">
-                    <a href="/Landing" class="admin-nav-item">Newsfeed</a>
-                    <a href="/Posts/Create" class="admin-nav-item">Create Post</a>
-                    <a href="/UserDashboard/Index" class="admin-nav-item active">My Profile</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
-            </div>
-        </aside>
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
-        <main class="user-main">
+            <input type="hidden" asp-for="Account.Id" />
+            <input type="hidden" asp-for="Account.Password" />
+            <input type="hidden" asp-for="Account.Email" />
+            <input type="hidden" asp-for="Account.Age" />
+            <input type="hidden" asp-for="Account.AccountStatus" />
 
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">Edit Profile</h4>
-                <a href="/UserDashboard/Index" class="action-btn action-view"
-                   style="padding:8px 16px;font-size:13px;">Back to Profile</a>
+            <div class="mb-3">
+                <label asp-for="Account.Username" class="form-label fw-semibold">Display Name</label>
+                <span class="text-danger">*</span>
+                <input asp-for="Account.Username" class="form-control" />
+                <span asp-validation-for="Account.Username" class="text-danger small"></span>
             </div>
 
-            <div class="admin-table-container">
-                <div class="dash-card" style="max-width:600px;">
-
-                    <form method="post">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
-
-                        @* Hidden fields — preserve values that are not edited on this form *@
-                        <input type="hidden" asp-for="Account.Id" />
-                        <input type="hidden" asp-for="Account.Password" />
-                        <input type="hidden" asp-for="Account.Email" />
-                        <input type="hidden" asp-for="Account.Age" />
-
-                        <div class="mb-3">
-                            <label asp-for="Account.Username" class="form-label fw-semibold">Display Name</label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Account.Username" class="form-control" />
-                            <span asp-validation-for="Account.Username" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Email</label>
-                            <div class="form-control bg-light text-muted">@Model.Account.Email</div>
-                            <div class="text-muted small mt-1">Email cannot be changed.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Account.Gender" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <select asp-for="Account.Gender" class="form-select">
-                                <option value="">— Select Gender —</option>
-                                <option>Male</option>
-                                <option>Female</option>
-                            </select>
-                            <span asp-validation-for="Account.Gender" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Account.Address" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Account.Address" class="form-control" />
-                            <span asp-validation-for="Account.Address" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Account.Contact" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Account.Contact" class="form-control"
-                                   placeholder="09XXXXXXXXX" />
-                            <span asp-validation-for="Account.Contact" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Account.Birthday" class="form-label fw-semibold"></label>
-                            <span class="text-danger">*</span>
-                            <input asp-for="Account.Birthday" type="date" class="form-control" />
-                            <span asp-validation-for="Account.Birthday" class="text-danger small"></span>
-                            <div class="text-muted small mt-1">Age recalculates automatically when saved.</div>
-                        </div>
-
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="action-btn action-approve"
-                                    style="padding:10px 24px;font-size:14px;">
-                                Save Changes
-                            </button>
-                            <a href="/UserDashboard/Index" class="action-btn action-view"
-                               style="padding:10px 24px;font-size:14px;">Cancel</a>
-                        </div>
-                    </form>
-
-                </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email</label>
+                <div class="form-control bg-light text-muted">@Model.Account.Email</div>
+                <div class="text-muted small mt-1">Email cannot be changed.</div>
             </div>
-        </main>
+
+            <div class="mb-3">
+                <label asp-for="Account.Gender" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <select asp-for="Account.Gender" class="form-select">
+                    <option value="">— Select Gender —</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+                <span asp-validation-for="Account.Gender" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Account.Address" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Account.Address" class="form-control" />
+                <span asp-validation-for="Account.Address" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Account.Contact" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Account.Contact" class="form-control" placeholder="09XXXXXXXXX" />
+                <span asp-validation-for="Account.Contact" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Account.Birthday" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Account.Birthday" type="date" class="form-control" />
+                <span asp-validation-for="Account.Birthday" class="text-danger small"></span>
+                <div class="text-muted small mt-1">Age recalculates automatically when saved.</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="action-btn action-approve" style="padding:10px 24px;font-size:14px;">Save Changes</button>
+                <a href="/UserDashboard/Index" class="action-btn action-view" style="padding:10px 24px;font-size:14px;">Cancel</a>
+            </div>
+        </form>
+
     </div>
+</div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

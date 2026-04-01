@@ -2,66 +2,84 @@
 @model Pethub.Pages.PetManagement.EditModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Pet";
+    Layout = "_Layout";
 }
 
-<h1>Edit</h1>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">Edit Pet</h4>
+    <a href="/PetManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px; text-decoration:none;">Back to List</a>
+</div>
 
-<h4>Pet</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="admin-table-container">
+    <div class="dash-card" style="max-width:640px;">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
             <input type="hidden" asp-for="Pet.Id" />
-            <div class="form-group">
-<span class="text-danger">*</span>
-                <label asp-for="Pet.Name" class="control-label"></label>
-                <input asp-for="Pet.Name" class="form-control" aria-required="true"/>
-                <span asp-validation-for="Pet.Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-<span class="text-danger">*</span>
-                <label asp-for="Pet.Species" class="control-label"></label>
-                <input asp-for="Pet.Species" class="form-control" aria-required="true"/>
-                <span asp-validation-for="Pet.Species" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Pet.Breed" class="control-label"></label>
-                <input asp-for="Pet.Breed" class="form-control" />
-                <span asp-validation-for="Pet.Breed" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Pet.Age" class="control-label"></label>
-                <input asp-for="Pet.Age" class="form-control" />
-                <span asp-validation-for="Pet.Age" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Pet.VaccinationStatus" class="control-label"></label>
-                <input asp-for="Pet.VaccinationStatus" class="form-control" />
-                <span asp-validation-for="Pet.VaccinationStatus" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Pet.ImagePath" class="control-label"></label>
-                <input asp-for="Pet.ImagePath" class="form-control" />
-                <span asp-validation-for="Pet.ImagePath" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+            <input type="hidden" asp-for="Pet.ImagePath" />
+
+            <div class="form-group d-none">
                 <label asp-for="Pet.AccountId" class="control-label"></label>
-                <select asp-for="Pet.AccountId" class="form-control" asp-items="ViewBag.AccountId" ></select>
+                <select asp-for="Pet.AccountId" class="form-control" asp-items="ViewBag.AccountId"></select>
                 <span asp-validation-for="Pet.AccountId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="mb-3">
+                <label asp-for="Pet.Name" class="form-label fw-semibold"></label>
+                <span class="text-danger">*</span>
+                <input asp-for="Pet.Name" class="form-control" />
+                <span asp-validation-for="Pet.Name" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.Species" class="form-label fw-semibold"></label>
+                    <span class="text-danger">*</span>
+                    <select asp-for="Pet.Species" class="form-select">
+                        <option value="">— Select Species —</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
+                        <option value="Bird">Bird</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="Pet.Species" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.Breed" class="form-label fw-semibold"></label>
+                    <input asp-for="Pet.Breed" class="form-control" />
+                    <span asp-validation-for="Pet.Breed" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.Age" class="form-label fw-semibold"></label>
+                    <input asp-for="Pet.Age" class="form-control" type="number" min="0" />
+                    <span asp-validation-for="Pet.Age" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Pet.VaccinationStatus" class="form-label fw-semibold">Vaccination Status</label>
+                    <select asp-for="Pet.VaccinationStatus" class="form-select">
+                        <option value="">— Select Status —</option>
+                        <option value="Fully Vaccinated">Fully Vaccinated</option>
+                        <option value="Partially Vaccinated">Partially Vaccinated</option>
+                        <option value="Unvaccinated">Unvaccinated</option>
+                    </select>
+                    <span asp-validation-for="Pet.VaccinationStatus" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="action-btn action-approve" style="padding:10px 24px;font-size:14px;">Save Changes</button>
+                <a href="/PetManagement/Index" class="action-btn action-view" style="padding:10px 24px;font-size:14px; text-decoration: none;">Cancel</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -2,113 +2,81 @@
 @model Pethub.Pages.PetManagement.IndexModel
 @{
     ViewData["Title"] = "My Pets";
-    Layout = null;
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Pets — PetHub</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Admin.css" />
-    <link rel="stylesheet" href="~/css/userdash.css" />
-</head>
-<body>
-    <div class="user-wrapper">
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-inner">
-                <div class="admin-logo">
-                    <img src="~/images/paws1.png" alt="paw" />
-                    <span>PETHUB</span>
-                </div>
-                <div class="user-role-badge">User</div>
-                <nav class="admin-nav">
-                    <a href="/Landing" class="admin-nav-item">Newsfeed</a>
-                    <a href="/Posts/Create" class="admin-nav-item">Create Post</a>
-                    <a href="/PetManagement/Index" class="admin-nav-item active">My Pets</a>
-                    <a href="/UserDashboard/Index" class="admin-nav-item">My Profile</a>
-                </nav>
-                <div class="admin-sidebar-footer">
-                    <a href="/Logout" class="admin-logout-btn">Logout</a>
-                </div>
-            </div>
-        </aside>
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">My Pets</h4>
+    <a href="/PetManagement/Create" class="action-btn action-approve" style="padding:8px 16px;font-size:13px; text-decoration: none;">+ Add New Pet</a>
+</div>
 
-        <main class="user-main">
-            <div class="admin-topbar">
-                <h4 class="admin-topbar-title">My Pets</h4>
-                <a href="/PetManagement/Create" class="action-btn action-approve" style="padding:8px 16px;font-size:13px; text-decoration: none;">+ Add New Pet</a>
-            </div>
-
-            <div class="admin-table-container">
-                <div class="dash-card">
-                    <div class="table-responsive">
-                        <table class="table align-middle admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Photo</th>
-                                    <th>Name</th>
-                                    <th>Species & Breed</th>
-                                    <th>Age</th>
-                                    <th>Vaccination Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model.Pet)
+<div class="admin-table-container">
+    <div class="dash-card">
+        <div class="table-responsive">
+            <table class="table align-middle admin-table mb-0">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th class="py-3 px-4">Photo</th>
+                        <th class="py-3">Name</th>
+                        <th class="py-3">Species & Breed</th>
+                        <th class="py-3">Age</th>
+                        <th class="py-3">Vaccination Status</th>
+                        <th class="py-3 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Pet)
+                    {
+                        <tr style="border-bottom: 1px solid #f0f2f5;">
+                            <td class="px-4 py-2">
+                                @if (!string.IsNullOrEmpty(item.ImagePath))
                                 {
-                                    <tr>
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(item.ImagePath))
-                                            {
-                                                <img src="@item.ImagePath" alt="@item.Name" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
-                                            }
-                                            else
-                                            {
-                                                <div style="width: 50px; height: 50px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 10px;">No Pic</div>
-                                            }
-                                        </td>
-                                        <td class="fw-semibold">@item.Name</td>
-                                        <td>
-                                            @item.Species
-                                            @if (!string.IsNullOrEmpty(item.Breed))
-                                            {
-                                                <span class="text-muted small">(@item.Breed)</span>
-                                            }
-                                        </td>
-                                        <td>@item.Age</td>
-                                        <td>
-                                            @if (item.VaccinationStatus == "Fully Vaccinated")
-                                            {
-                                                <span class="badge bg-success text-white">@item.VaccinationStatus</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-warning text-dark">@item.VaccinationStatus</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="/PetManagement/Edit?id=@item.Id" class="action-btn action-view" style="padding:4px 8px; font-size: 12px; text-decoration: none;">Edit</a>
-                                                <a href="/PetManagement/Delete?id=@item.Id" class="action-btn action-reject" style="padding:4px 8px; font-size: 12px; text-decoration: none;">Delete</a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <img src="@item.ImagePath" alt="@item.Name" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;" />
                                 }
-                                @if (!Model.Pet.Any())
+                                else
                                 {
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4 text-muted">You haven't added any pets yet.</td>
-                                    </tr>
+                                    <div style="width: 48px; height: 48px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 16px;">🐾</div>
                                 }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
+                            </td>
+                            <td class="fw-semibold" style="color: #2c3e50;">@item.Name</td>
+                            <td>
+                                @item.Species
+                                @if (!string.IsNullOrEmpty(item.Breed))
+                                {
+                                    <span class="text-muted small d-block">@item.Breed</span>
+                                }
+                            </td>
+                            <td>@item.Age yrs</td>
+                            <td>
+                                @if (item.VaccinationStatus == "Fully Vaccinated")
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">@item.VaccinationStatus</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">@item.VaccinationStatus</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="/PetManagement/Details?id=@item.Id" class="action-btn action-view text-decoration-none py-1 px-3" style="font-size: 12px;">Details</a>
+                                    <a href="/PetManagement/Edit?id=@item.Id" class="action-btn action-approve text-decoration-none py-1 px-3" style="font-size: 12px;">Edit</a>
+                                    <a href="/PetManagement/Delete?id=@item.Id" class="action-btn action-reject text-decoration-none py-1 px-3" style="font-size: 12px;">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Pet.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted fs-1 mb-2">🐾</div>
+                                <div class="text-muted fw-semibold">You haven't added any pets yet.</div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-</body>
-</html>
+</div>

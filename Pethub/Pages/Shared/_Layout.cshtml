@@ -13,7 +13,7 @@
 </head>
 <body>
     @{
-        bool isAdmin = Context.Request.Path.StartsWithSegments("/Admin");
+        bool isAdmin = Context.Request.Path.StartsWithSegments("/Admin") || Context.Request.Path.StartsWithSegments("/AccountManagement");
         string currentPath = Context.Request.Path;
     }
 
@@ -40,9 +40,17 @@
                             <i class="bi bi-speedometer2"></i>
                             <span class="sidebar-text">Dashboard</span>
                         </a>
+                        <a href="/AccountManagement/Index" class="admin-nav-item @(currentPath.StartsWith("/AccountManagement") ? "active" : "")">
+                            <i class="bi bi-people"></i>
+                            <span class="sidebar-text">Manage Users</span>
+                        </a>
                         <a href="/Admin/ReportedPosts" class="admin-nav-item @(currentPath.StartsWith("/Admin/ReportedPosts") ? "active" : "")">
                             <i class="bi bi-flag"></i>
                             <span class="sidebar-text">Reported Posts</span>
+                        </a>
+                        <a href="/Admin/ActivityLogs" class="admin-nav-item @(currentPath.StartsWith("/Admin/ActivityLogs") ? "active" : "")">
+                            <i class="bi bi-journal-text"></i>
+                            <span class="sidebar-text">Activity Logs</span>
                         </a>
                     </nav>
                 }
@@ -58,9 +66,13 @@
                             <i class="bi bi-plus-square"></i>
                             <span class="sidebar-text">Create Post</span>
                         </a>
-                        <a href="/UserDashboard/Index" class="admin-nav-item @(currentPath.StartsWith("/UserDashboard") ? "active" : "")">
+                        <a href="/UserDashboard/Index" class="admin-nav-item @(currentPath == "/UserDashboard/Index" || currentPath == "/UserDashboard" ? "active" : "")">
                             <i class="bi bi-person"></i>
                             <span class="sidebar-text">My Profile</span>
+                        </a>
+                        <a href="/UserDashboard/ActivityLogs" class="admin-nav-item @(currentPath.StartsWith("/UserDashboard/ActivityLogs") ? "active" : "")">
+                            <i class="bi bi-journal-text"></i>
+                            <span class="sidebar-text">Activity Logs</span>
                         </a>
                     </nav>
                 }

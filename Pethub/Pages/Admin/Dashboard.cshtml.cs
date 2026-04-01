@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
 using Pethub.Models;
@@ -9,78 +9,123 @@ namespace Pethub.Pages.Admin
     public class DashboardModel : AdminPageModel
     {
         private readonly PethubContext _context;
+        private readonly ILogger<DashboardModel> _logger;
 
-        public DashboardModel(PethubContext context)
+        public DashboardModel(PethubContext context, ILogger<DashboardModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        // Post Velocity
+        // --- ORIGINAL SUMMARY COUNTS ---
+        public int TotalAccounts { get; set; }
+        public int MaleCount { get; set; }
+        public int FemaleCount { get; set; }
+
+        public int AgeGroup1 { get; set; }
+        public int AgeGroup2 { get; set; }
+        public int AgeGroup3 { get; set; }
+        public int AgeGroup4 { get; set; }
+
+        public double MalePercent { get; set; }
+        public double FemalePercent { get; set; }
+        public double Ag1p { get; set; }
+        public double Ag2p { get; set; }
+        public double Ag3p { get; set; }
+        public double Ag4p { get; set; }
+
+        // --- NEW: POST VELOCITY ---
         public int Posts1h { get; set; }
         public int Posts12h { get; set; }
         public int Posts1d { get; set; }
         public int Posts7d { get; set; }
 
-        // Chart Data
+        // --- NEW: CHART DATA ---
         public string ChartLabelsJson { get; set; } = "[]";
         public string ChartDataJson { get; set; } = "[]";
 
-        // Category / Ratios
+        // --- NEW: CATEGORY RATIOS ---
         public int TotalLost { get; set; }
         public int TotalFound { get; set; }
         public int TotalAdoptions { get; set; }
 
-        // Recent Additions
+        // --- RECENT DATA ---
         public IList<Account> RecentAccounts { get; set; } = new List<Account>();
         public IList<Pet> RecentPets { get; set; } = new List<Pet>();
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task OnGetAsync()
         {
-            var now = DateTime.Now;
-
-            // 1. Post Velocity
-            Posts1h = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddHours(-1));
-            Posts12h = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddHours(-12));
-            Posts1d = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddDays(-1));
-            Posts7d = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddDays(-7));
-
-            // 2. Prepare Graph Data (Last 7 Days)
-            var last7DaysDates = Enumerable.Range(0, 7).Select(i => now.Date.AddDays(-i)).Reverse().ToList();
-            var labels = last7DaysDates.Select(d => d.ToString("MMM dd")).ToList();
-            var data = new List<int>();
-
-            // Fetch all posts from last 7 days to calculate groups in memory safely
-            var recentPosts = await _context.Post
-                .Where(p => p.CreatedAt >= now.AddDays(-7))
-                .Select(p => p.CreatedAt.Date)
-                .ToListAsync();
-
-            foreach (var day in last7DaysDates)
+            try
             {
-                data.Add(recentPosts.Count(d => d == day));
+                _logger?.LogDebug("DashboardModel: OnGetAsync() started");
+
+                // 1. Load Accounts for Original Calculations
+                var accounts = await _context.Account.ToListAsync();
+                TotalAccounts = accounts.Count;
+                MaleCount = accounts.Count(a => a.Gender == "Male");
+                FemaleCount = accounts.Count(a => a.Gender == "Female");
+
+                AgeGroup1 = accounts.Count(a => a.Age >= 18 && a.Age <= 25);
+                AgeGroup2 = accounts.Count(a => a.Age >= 26 && a.Age <= 35);
+                AgeGroup3 = accounts.Count(a => a.Age >= 36 && a.Age <= 50);
+                AgeGroup4 = accounts.Count(a => a.Age >= 51);
+
+                if (TotalAccounts > 0)
+                {
+                    MalePercent = Math.Round((double)MaleCount / TotalAccounts * 100, 1);
+                    FemalePercent = Math.Round((double)FemaleCount / TotalAccounts * 100, 1);
+                    Ag1p = Math.Round((double)AgeGroup1 / TotalAccounts * 100, 1);
+                    Ag2p = Math.Round((double)AgeGroup2 / TotalAccounts * 100, 1);
+                    Ag3p = Math.Round((double)AgeGroup3 / TotalAccounts * 100, 1);
+                    Ag4p = Math.Round((double)AgeGroup4 / TotalAccounts * 100, 1);
+                }
+
+                // 2. NEW: Post Velocity
+                var now = DateTime.Now;
+                Posts1h = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddHours(-1));
+                Posts12h = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddHours(-12));
+                Posts1d = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddDays(-1));
+                Posts7d = await _context.Post.CountAsync(p => p.CreatedAt >= now.AddDays(-7));
+
+                // 3. NEW: Prepare Graph Data
+                var last7DaysDates = Enumerable.Range(0, 7).Select(i => now.Date.AddDays(-i)).Reverse().ToList();
+                var labels = last7DaysDates.Select(d => d.ToString("MMM dd")).ToList();
+                var data = new List<int>();
+
+                var recentPosts = await _context.Post
+                    .Where(p => p.CreatedAt >= now.AddDays(-7))
+                    .Select(p => p.CreatedAt.Date)
+                    .ToListAsync();
+
+                foreach (var day in last7DaysDates)
+                {
+                    data.Add(recentPosts.Count(d => d == day));
+                }
+
+                ChartLabelsJson = JsonSerializer.Serialize(labels);
+                ChartDataJson = JsonSerializer.Serialize(data);
+
+                // 4. NEW: Category Stats
+                TotalLost = await _context.Post.CountAsync(p => p.Category == "Lost Pet");
+                TotalFound = await _context.Post.CountAsync(p => p.Category == "Found Pet");
+                TotalAdoptions = await _context.Post.CountAsync(p => p.Category == "Adoption");
+
+                // 5. Recent Additions for UI Bottom Row
+                RecentAccounts = accounts.OrderByDescending(a => a.Id).Take(5).ToList();
+
+                RecentPets = await _context.Pet
+                    .Include(p => p.Account)
+                    .OrderByDescending(p => p.Id)
+                    .Take(5)
+                    .ToListAsync();
+
+                _logger?.LogDebug("✓ DashboardModel: Dashboard loaded successfully. Total Accounts={Total}, Recent Pets={Pets}", TotalAccounts, RecentPets.Count);
             }
-
-            ChartLabelsJson = JsonSerializer.Serialize(labels);
-            ChartDataJson = JsonSerializer.Serialize(data);
-
-            // 3. Category Stats
-            TotalLost = await _context.Post.CountAsync(p => p.Category == "Lost Pet");
-            TotalFound = await _context.Post.CountAsync(p => p.Category == "Found Pet");
-            TotalAdoptions = await _context.Post.CountAsync(p => p.Category == "Adoption");
-
-            // 4. Recent Data
-            RecentAccounts = await _context.Account
-                .OrderByDescending(a => a.Id)
-                .Take(5)
-                .ToListAsync();
-
-            RecentPets = await _context.Pet
-                .Include(p => p.Account)
-                .OrderByDescending(p => p.Id)
-                .Take(5)
-                .ToListAsync();
-
-            return Page();
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ DashboardModel: Exception in OnGetAsync");
+                TotalAccounts = 0;
+            }
         }
     }
 }
