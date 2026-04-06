@@ -21,6 +21,7 @@ namespace Pethub.Pages.Admin
             // Fetch the 200 most recent activity logs for performance
             Logs = await _context.ActivityLog
                 .Include(a => a.Account)
+                .Where(a => a.Role == "Admin")
                 .OrderByDescending(a => a.Timestamp)
                 .Take(200)
                 .ToListAsync();

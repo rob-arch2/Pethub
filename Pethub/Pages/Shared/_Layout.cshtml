@@ -6,14 +6,14 @@
     <title>@ViewData["Title"] - Pethub</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/userdash.css" asp-append-version="true" />
 </head>
 <body>
     @{
-        bool isAdmin = Context.Request.Path.StartsWithSegments("/Admin") || Context.Request.Path.StartsWithSegments("/AccountManagement");
+        bool isAdmin = Context.Request.Path.StartsWithSegments("/Admin")
+        || Context.Request.Path.StartsWithSegments("/AccountManagement");
         string currentPath = Context.Request.Path;
     }
 
@@ -22,12 +22,13 @@
         <aside class="admin-sidebar" id="mainSidebar">
             <div class="admin-sidebar-inner">
 
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <div class="admin-logo m-0">
+                <!-- ── Header: paw + toggle ───────────────────────── -->
+                <div class="sidebar-header-row">
+                    <div class="admin-logo">
                         <img src="~/images/paws1.png" alt="paw" />
                         <span class="sidebar-text">PETHUB</span>
                     </div>
-                    <button id="sidebarToggle" class="btn btn-sm text-white border-0 p-0" style="background:transparent; font-size:1.4rem;">
+                    <button id="sidebarToggle" aria-label="Toggle sidebar">
                         <i class="bi bi-list"></i>
                     </button>
                 </div>
@@ -36,19 +37,23 @@
                 {
                     <div class="admin-role-badge sidebar-text">Admin</div>
                     <nav class="admin-nav">
-                        <a href="/Admin/Dashboard" class="admin-nav-item @(currentPath.StartsWith("/Admin/Dashboard") ? "active" : "")">
+                        <a href="/Admin/Dashboard"
+                           class="admin-nav-item @(currentPath.StartsWith("/Admin/Dashboard") ? "active" : "")">
                             <i class="bi bi-speedometer2"></i>
                             <span class="sidebar-text">Dashboard</span>
                         </a>
-                        <a href="/AccountManagement/Index" class="admin-nav-item @(currentPath.StartsWith("/AccountManagement") ? "active" : "")">
+                        <a href="/AccountManagement/Index"
+                           class="admin-nav-item @(currentPath.StartsWith("/AccountManagement") ? "active" : "")">
                             <i class="bi bi-people"></i>
                             <span class="sidebar-text">Manage Users</span>
                         </a>
-                        <a href="/Admin/ReportedPosts" class="admin-nav-item @(currentPath.StartsWith("/Admin/ReportedPosts") ? "active" : "")">
+                        <a href="/Admin/ReportedPosts"
+                           class="admin-nav-item @(currentPath.StartsWith("/Admin/ReportedPosts") ? "active" : "")">
                             <i class="bi bi-flag"></i>
                             <span class="sidebar-text">Reported Posts</span>
                         </a>
-                        <a href="/Admin/ActivityLogs" class="admin-nav-item @(currentPath.StartsWith("/Admin/ActivityLogs") ? "active" : "")">
+                        <a href="/Admin/ActivityLogs"
+                           class="admin-nav-item @(currentPath.StartsWith("/Admin/ActivityLogs") ? "active" : "")">
                             <i class="bi bi-journal-text"></i>
                             <span class="sidebar-text">Activity Logs</span>
                         </a>
@@ -58,19 +63,28 @@
                 {
                     <div class="user-role-badge sidebar-text">User</div>
                     <nav class="admin-nav">
-                        <a href="/Landing" class="admin-nav-item @(currentPath == "/Landing" ? "active" : "")">
+                        <a href="/Landing"
+                           class="admin-nav-item @(currentPath == "/Landing" ? "active" : "")">
                             <i class="bi bi-house-door"></i>
                             <span class="sidebar-text">Newsfeed</span>
                         </a>
-                        <a href="/Posts/Create" class="admin-nav-item @(currentPath.StartsWith("/Posts/Create") ? "active" : "")">
+                        <a href="/Posts/Create"
+                           class="admin-nav-item @(currentPath.StartsWith("/Posts/Create") ? "active" : "")">
                             <i class="bi bi-plus-square"></i>
                             <span class="sidebar-text">Create Post</span>
                         </a>
-                        <a href="/UserDashboard/Index" class="admin-nav-item @(currentPath == "/UserDashboard/Index" || currentPath == "/UserDashboard" ? "active" : "")">
+                        <a href="/UserDashboard/Index"
+                           class="admin-nav-item @(currentPath == "/UserDashboard/Index" || currentPath == "/UserDashboard" ? "active" : "")">
                             <i class="bi bi-person"></i>
                             <span class="sidebar-text">My Profile</span>
                         </a>
-                        <a href="/UserDashboard/ActivityLogs" class="admin-nav-item @(currentPath.StartsWith("/UserDashboard/ActivityLogs") ? "active" : "")">
+                        <a href="/UserDashboard/MyReports"
+                           class="admin-nav-item @(currentPath.StartsWith("/UserDashboard/MyReports") ? "active" : "")">
+                            <i class="bi bi-flag"></i>
+                            <span class="sidebar-text">My Reports</span>
+                        </a>
+                        <a href="/UserDashboard/ActivityLogs"
+                           class="admin-nav-item @(currentPath.StartsWith("/UserDashboard/ActivityLogs") ? "active" : "")">
                             <i class="bi bi-journal-text"></i>
                             <span class="sidebar-text">Activity Logs</span>
                         </a>
@@ -83,6 +97,7 @@
                         <span class="sidebar-text">Logout</span>
                     </a>
                 </div>
+
             </div>
         </aside>
 

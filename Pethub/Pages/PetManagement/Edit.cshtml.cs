@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
@@ -11,11 +6,11 @@ using Pethub.Models;
 
 namespace Pethub.Pages.PetManagement
 {
-    public class EditModel : PageModel
+    public class EditModel : AuthenticatedPageModel
     {
-        private readonly Pethub.Data.PethubContext _context;
+        private readonly PethubContext _context;
 
-        public EditModel(Pethub.Data.PethubContext context)
+        public EditModel(PethubContext context)
         {
             _context = context;
         }
@@ -26,28 +21,35 @@ namespace Pethub.Pages.PetManagement
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var pet =  await _context.Pet.FirstOrDefaultAsync(m => m.Id == id);
+            var pet = await _context.Pet.FirstOrDefaultAsync(m => m.Id == id);
             if (pet == null)
-            {
                 return NotFound();
-            }
+
+            // Only allow the owner to edit their own pet
+            if (pet.AccountId != (CurrentAccountId ?? 0))
+                return RedirectToPage("./Index");
+
             Pet = pet;
-           ViewData["AccountId"] = new SelectList(_context.Account, "Id", "Address");
+            ViewData["AccountId"] = new SelectList(_context.Account, "Id", "Address");
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
+
+            // Log the pet edit
+            _context.ActivityLog.Add(new ActivityLog
+            {
+                AccountId = CurrentAccountId ?? 0,
+                Role = "User",
+                Action = "Edited Pet",
+                Details = $"Updated details for pet '{Pet.Name}'",
+                Timestamp = DateTime.Now
+            });
 
             _context.Attach(Pet).State = EntityState.Modified;
 
@@ -57,22 +59,13 @@ namespace Pethub.Pages.PetManagement
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PetExists(Pet.Id))
-                {
+                if (!_context.Pet.Any(e => e.Id == Pet.Id))
                     return NotFound();
-                }
                 else
-                {
                     throw;
-                }
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool PetExists(int id)
-        {
-            return _context.Pet.Any(e => e.Id == id);
         }
     }
 }

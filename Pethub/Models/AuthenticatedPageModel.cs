@@ -144,7 +144,7 @@ namespace Pethub.Models
                 Logger?.LogDebug("AuthenticatedPageModel: User authenticated with AccountId = {AccountId}", accountId);
                 debugLogger?.LogInformation("🔍 [AuthCheck-PASS] Authentication successful, AccountId={AccountId}", accountId);
                 base.OnPageHandlerExecuting(context);
-                debugLogger?.LogInformation("🔍 [AuthCheck-END] OnPageHandlerExecuting completed successfully");
+                debugLogger?.LogInformation("[AuthCheck-END] OnPageHandlerExecuting completed successfully");
             }
             catch (Exception ex)
             {

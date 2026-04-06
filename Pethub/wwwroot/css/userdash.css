@@ -1,13 +1,12 @@
 ﻿/* =====================
-   USER DASHBOARD SPECIFICS
+   USER DASHBOARD
    ===================== */
-
 .profile-card {
-    background: white;
-    border-radius: 12px;
+    background: #fffdf8;
+    border-radius: 14px;
     padding: 24px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.03);
-    border: 1px solid #f0f2f5;
+    box-shadow: 0 4px 16px rgba(61, 35, 25, 0.08);
+    border: 1px solid #ddd0b8;
 }
 
 .profile-header {
@@ -21,32 +20,34 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: #3949ab;
-    color: white;
+    background: #c97b67;
+    color: #fffdf8;
     font-size: 26px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 8px rgba(57, 73, 171, 0.2);
+    box-shadow: 0 4px 12px rgba(201, 123, 103, 0.35);
+    font-family: 'Georgia', serif;
 }
 
 .profile-name {
     font-size: 20px;
     font-weight: 800;
-    color: #2c3e50;
+    color: #2c1a0e;
     margin-bottom: 2px;
+    font-family: 'Georgia', serif;
 }
 
 .profile-email {
     font-size: 14px;
-    color: #7f8c8d;
+    color: #7a6652;
 }
 
-/* Post Summary Cards */
+/* Post summary rows */
 .my-post-card {
-    background: #f8f9fa;
+    background: #f9f3e8;
     border-radius: 10px;
     padding: 16px;
     display: flex;
@@ -58,8 +59,8 @@
 }
 
     .my-post-card:hover {
-        background: #fff;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        background: #fffdf8;
+        box-shadow: 0 4px 12px rgba(61, 35, 25, 0.08);
     }
 
     .my-post-card.status-active {
@@ -74,6 +75,7 @@
         border-left-color: #c62828;
     }
 
+/* Status badges */
 .status-badge {
     padding: 4px 10px;
     border-radius: 20px;
@@ -98,13 +100,15 @@
     color: #c62828;
 }
 
-/* Dashboard Mini-Tables/Lists (Data List formatting) */
+/* Data list */
 dl.row dt {
     font-weight: 600;
-    color: #7f8c8d;
+    color: #7a6652;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 13px;
 }
 
 dl.row dd {
-    color: #2c3e50;
+    color: #2c1a0e;
     font-weight: 500;
 }

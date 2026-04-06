@@ -50,7 +50,7 @@ namespace Pethub.Pages.AccountManagement
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ DetailsModel: Exception in OnGetAsync");
+                _logger?.LogError(ex, "DetailsModel: Exception in OnGetAsync");
                 return NotFound();
             }
         }

@@ -51,7 +51,6 @@ namespace Pethub.Pages.UserDashboard
             {
                 _logger?.LogDebug("EditProfileModel: OnPostAsync() started");
 
-                // Email is displayed read-only — not in the form POST, so exclude from validation
                 ModelState.Remove("Account.Email");
 
                 if (!ModelState.IsValid)
@@ -60,22 +59,30 @@ namespace Pethub.Pages.UserDashboard
                     return Page();
                 }
 
-                // Guard: users can only edit their own profile
                 if (Account.Id != (AccountId ?? 0))
                 {
-                    _logger?.LogWarning("EditProfileModel: User attempted to edit another user's profile - AccountId={CurrentId}, TargetId={TargetId}", 
+                    _logger?.LogWarning("EditProfileModel: User attempted to edit another user's profile - AccountId={CurrentId}, TargetId={TargetId}",
                         AccountId, Account.Id);
                     return Forbid();
                 }
 
-                // Recalculate age from the updated birthday
                 var today = DateTime.Today;
                 int age = today.Year - Account.Birthday.Year;
                 if (Account.Birthday.Date > today.AddYears(-age)) age--;
                 Account.Age = age;
 
-                _logger?.LogDebug("EditProfileModel: Updating account - Username={Username}, Age={Age}", 
+                _logger?.LogDebug("EditProfileModel: Updating account - Username={Username}, Age={Age}",
                     Account.Username, Account.Age);
+
+                // Log the profile edit
+                _context.ActivityLog.Add(new ActivityLog
+                {
+                    AccountId = Account.Id,
+                    Role = "User",
+                    Action = "Edited Profile",
+                    Details = $"Updated profile details for '{Account.Username}'",
+                    Timestamp = DateTime.Now
+                });
 
                 _context.Attach(Account).State = EntityState.Modified;
 
@@ -90,8 +97,6 @@ namespace Pethub.Pages.UserDashboard
                     return NotFound();
                 }
 
-                // Keep the session username in sync if the display name changed
-                // Guard: check if HttpContext and Session exist before writing
                 if (HttpContext?.Session != null)
                 {
                     try
@@ -102,7 +107,6 @@ namespace Pethub.Pages.UserDashboard
                     catch (Exception ex)
                     {
                         _logger?.LogError(ex, "❌ EditProfileModel: Failed to update session username");
-                        // Don't return error - profile was saved successfully
                     }
                 }
                 else

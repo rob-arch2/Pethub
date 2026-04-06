@@ -14,43 +14,53 @@
 
     @if (!string.IsNullOrEmpty(successMsg))
     {
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" style="background-color: #e6f4ea; color: #2e7d32;">
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm"
+             style="background-color: #e6f4ea; color: #2e7d32;">
             <i class="bi bi-check-circle-fill me-2"></i> @successMsg
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4" style="border-left-color: #f57f17 !important;">
-                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 20px;">
+            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4"
+                 style="border-left-color: #f57f17 !important;">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center
+                            justify-content-center me-3"
+                     style="width:48px;height:48px;font-size:20px;">
                     <i class="bi bi-flag-fill"></i>
                 </div>
                 <div>
                     <div class="text-muted small fw-bold text-uppercase">Active Reports</div>
-                    <div class="fs-4 fw-bold" style="color: #2c3e50;">@Model.TotalActiveReports</div>
+                    <div class="fs-4 fw-bold" style="color:#2c3e50;">@Model.TotalActiveReports</div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4" style="border-left-color: #3949ab !important;">
-                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 20px;">
+            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4"
+                 style="border-left-color: #3949ab !important;">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center
+                            justify-content-center me-3"
+                     style="width:48px;height:48px;font-size:20px;">
                     <i class="bi bi-people-fill"></i>
                 </div>
                 <div>
                     <div class="text-muted small fw-bold text-uppercase">Unique Users Reported</div>
-                    <div class="fs-4 fw-bold" style="color: #2c3e50;">@Model.UniqueUsersReported</div>
+                    <div class="fs-4 fw-bold" style="color:#2c3e50;">@Model.UniqueUsersReported</div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4" style="border-left-color: #c62828 !important;">
-                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 20px;">
+            <div class="dash-card d-flex align-items-center p-4 h-100 border-start border-4"
+                 style="border-left-color: #c62828 !important;">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center
+                            justify-content-center me-3"
+                     style="width:48px;height:48px;font-size:20px;">
                     <i class="bi bi-person-x-fill"></i>
                 </div>
                 <div>
                     <div class="text-muted small fw-bold text-uppercase">Total Banned Users</div>
-                    <div class="fs-4 fw-bold" style="color: #2c3e50;">@Model.TotalBannedUsers</div>
+                    <div class="fs-4 fw-bold" style="color:#2c3e50;">@Model.TotalBannedUsers</div>
                 </div>
             </div>
         </div>
@@ -59,48 +69,95 @@
     <div class="dash-card">
         <div class="dash-card-title border-bottom pb-3 mb-0 d-flex justify-content-between align-items-center">
             <span>Actionable Reports</span>
-
             <div class="d-flex gap-2">
-                <a href="?Filter=Active" class="btn btn-sm @(Model.Filter == "Active" ? "btn-primary" : "btn-outline-primary")">Active</a>
-                <a href="?Filter=Dismissed" class="btn btn-sm @(Model.Filter == "Dismissed" ? "btn-warning" : "btn-outline-warning")">Dismissed</a>
-                <a href="?Filter=Banned" class="btn btn-sm @(Model.Filter == "Banned" ? "btn-danger" : "btn-outline-danger")">Banned Users</a>
+                <a href="?Filter=Active"
+                   class="btn btn-sm @(Model.Filter == "Active" ? "btn-primary" : "btn-outline-primary")">
+                    Active
+                </a>
+                <a href="?Filter=Dismissed"
+                   class="btn btn-sm @(Model.Filter == "Dismissed" ? "btn-warning" : "btn-outline-warning")">
+                    Dismissed
+                </a>
+                <a href="?Filter=Banned"
+                   class="btn btn-sm @(Model.Filter == "Banned" ? "btn-danger" : "btn-outline-danger")">
+                    Banned Users
+                </a>
             </div>
         </div>
 
         <div class="table-responsive">
             <table class="table align-middle admin-table mb-0">
-                <thead style="background: #f8f9fa;">
+                <thead style="background:#f8f9fa;">
                     <tr>
-                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Date</th>
-                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reported Post Title</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Date & Time</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reported Post</th>
                         <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reported By</th>
-                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reason</th>
+                        <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reason & Detail</th>
                         <th class="text-muted fw-bold text-uppercase small py-3 px-4 text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.Reports)
                     {
-                        <tr style="border-bottom: 1px solid #f0f2f5;">
-                            <td class="text-muted px-4">@item.CreatedAt.ToString("MMM dd, yyyy")</td>
-                            <td class="fw-semibold px-4" style="color: #2c3e50;">@item.Post.Title</td>
+                        <tr style="border-bottom:1px solid #f0f2f5;">
+
+                            {{!-- Precise timestamp --}}
+                            <td class="text-muted px-4" style="white-space:nowrap;">
+                                <div>@item.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                <div class="small text-muted">@item.CreatedAt.ToString("hh:mm tt")</div>
+                            </td>
+
+                            {{!-- Post title + category --}}
+                            <td class="px-4">
+                                <div class="fw-semibold" style="color:#2c3e50;">@item.Post.Title</div>
+                                <div class="small text-muted">@item.Post.Category</div>
+                            </td>
+
+                            {{!-- Reporter --}}
                             <td class="px-4">
                                 <span class="badge bg-light text-dark border">@@@item.Reporter.Username</span>
                             </td>
+
+                            {{!-- Reason category + detail text --}}
                             <td class="px-4">
                                 <span class="status-badge status-rejected">@item.ReasonCategory</span>
+                                @if (!string.IsNullOrWhiteSpace(item.ReasonDetail))
+                                {
+                                    <div class="small text-muted mt-1"
+                                         style="max-width:260px;word-break:break-word;">
+                                        @item.ReasonDetail
+                                    </div>
+                                }
                             </td>
+
+                            {{!-- Actions --}}
                             <td class="px-4 text-end">
-                                <form method="post" class="d-inline-flex gap-2">
+                                <form method="post" class="d-inline-flex gap-2 flex-wrap justify-content-end">
                                     <input type="hidden" name="Filter" value="@Model.Filter" />
 
                                     @if (Model.Filter == "Active")
                                     {
-                                        <button type="submit" asp-page-handler="Dismiss" asp-route-reportId="@item.Id" class="action-btn action-view">Dismiss</button>
-                                        <button type="submit" asp-page-handler="DeletePost" asp-route-postId="@item.PostId" class="action-btn action-reject" onclick="return confirm('Delete this post permanently?');">Delete Post</button>
+                                        <button type="submit"
+                                                asp-page-handler="Dismiss"
+                                                asp-route-reportId="@item.Id"
+                                                class="action-btn action-view">
+                                            Dismiss
+                                        </button>
+                                        <button type="submit"
+                                                asp-page-handler="DeletePost"
+                                                asp-route-postId="@item.PostId"
+                                                class="action-btn action-reject"
+                                                onclick="return confirm('Delete this post permanently?');">
+                                            Delete Post
+                                        </button>
                                     }
 
-                                    <button type="submit" asp-page-handler="ToggleBanUser" asp-route-accountId="@item.Post.AccountId" class="action-btn text-white" style="background: #1e2125;" onclick="return confirm('Toggle the ban status of this author?');">
+                                    <button type="submit"
+                                            asp-page-handler="ToggleBanUser"
+                                            asp-route-accountId="@item.Post.AccountId"
+                                            class="action-btn text-white"
+                                            style="background:#1e2125;"
+                                            onclick="return confirm('Toggle the ban status of this author?');">
                                         @(item.Post.Account.AccountStatus == "Banned" ? "Unban Author" : "Ban Author")
                                     </button>
                                 </form>

@@ -4,7 +4,6 @@ using Pethub.Models;
 
 namespace Pethub.Pages.PetManagement
 {
-    // Apply size limits for the image upload
     [RequestSizeLimit(10 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 10 * 1024 * 1024)]
     public class CreateModel : AuthenticatedPageModel
@@ -27,7 +26,6 @@ namespace Pethub.Pages.PetManagement
 
         public async Task<IActionResult> OnPostAsync(IFormFile? imageFile)
         {
-            // Remove server-controlled fields from validation so it doesn't fail silently
             ModelState.Remove("Pet.Account");
             ModelState.Remove("Pet.AccountId");
             ModelState.Remove("Pet.ImagePath");
@@ -35,7 +33,6 @@ namespace Pethub.Pages.PetManagement
             if (!ModelState.IsValid)
                 return Page();
 
-            // Image Upload Logic 
             if (imageFile != null && imageFile.Length > 0)
             {
                 if (imageFile.Length > 5 * 1024 * 1024)
@@ -50,9 +47,7 @@ namespace Pethub.Pages.PetManagement
                     var uploadsDir = Path.Combine(webRoot, "uploads");
 
                     if (!Directory.Exists(uploadsDir))
-                    {
                         Directory.CreateDirectory(uploadsDir);
-                    }
 
                     var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
                     var fileName = $"{Guid.NewGuid()}{ext}";
@@ -65,16 +60,25 @@ namespace Pethub.Pages.PetManagement
                 }
                 catch (Exception ex)
                 {
-                    // Expose the exact system error to the UI to help debug permissions
                     ErrorMessage = $"Image upload failed: {ex.Message}";
                     return Page();
                 }
             }
 
-            // Tie the pet to the logged-in user
             Pet.AccountId = CurrentAccountId ?? 0;
 
             _context.Pet.Add(Pet);
+
+            // Log the pet creation
+            _context.ActivityLog.Add(new ActivityLog
+            {
+                AccountId = CurrentAccountId ?? 0,
+                Role = "User",
+                Action = "Added Pet",
+                Details = $"Registered a new pet: '{Pet.Name}' ({Pet.Species})",
+                Timestamp = DateTime.Now
+            });
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

@@ -16,7 +16,6 @@ namespace Pethub.Pages.Admin
 
         public IList<Report> Reports { get; set; } = default!;
 
-        // Filter for sorting Active, Dismissed, and Banned user reports
         [BindProperty(SupportsGet = true)]
         public string Filter { get; set; } = "Active";
 
@@ -32,40 +31,50 @@ namespace Pethub.Pages.Admin
                 .Include(r => r.Reporter)
                 .AsQueryable();
 
-            // Apply Filters
             if (Filter == "Active")
-            {
-                // Show only active reports where the author is NOT banned
                 query = query.Where(r => r.Status == "Active" && r.Post.Account.AccountStatus != "Banned");
-            }
             else if (Filter == "Dismissed")
-            {
-                // Show reports marked as dismissed
                 query = query.Where(r => r.Status == "Dismissed");
-            }
             else if (Filter == "Banned")
-            {
-                // Show reports strictly for banned users
                 query = query.Where(r => r.Post.Account.AccountStatus == "Banned");
-            }
 
             Reports = await query.OrderByDescending(r => r.CreatedAt).ToListAsync();
 
-            TotalActiveReports = await _context.Report.CountAsync(r => r.Status == "Active" && r.Post.Account.AccountStatus != "Banned");
-            UniqueUsersReported = await _context.Report.Select(r => r.Post.AccountId).Distinct().CountAsync();
-            TotalBannedUsers = await _context.Account.CountAsync(a => a.AccountStatus == "Banned");
+            TotalActiveReports = await _context.Report
+                .CountAsync(r => r.Status == "Active" && r.Post.Account.AccountStatus != "Banned");
+            UniqueUsersReported = await _context.Report
+                .Select(r => r.Post.AccountId).Distinct().CountAsync();
+            TotalBannedUsers = await _context.Account
+                .CountAsync(a => a.AccountStatus == "Banned");
         }
 
         public async Task<IActionResult> OnPostDismissAsync(int reportId)
         {
-            var report = await _context.Report.Include(r => r.Post).FirstOrDefaultAsync(r => r.Id == reportId);
+            var report = await _context.Report
+                .Include(r => r.Post)
+                .FirstOrDefaultAsync(r => r.Id == reportId);
+
             if (report != null)
             {
                 report.Status = "Dismissed";
-                LogActivity("Dismissed Report", $"Report ID {reportId} on Post: {report.Post.Title}");
+
+                // Check if any OTHER active reports still exist on this post
+                bool hasOtherActiveReports = await _context.Report
+                    .AnyAsync(r => r.PostId == report.PostId
+                                && r.Id != reportId
+                                && r.Status == "Active");
+
+                // If no remaining active reports, reset the post back to Active
+                if (!hasOtherActiveReports)
+                    report.Post.Status = "Active";
+
+                LogActivity("Dismissed Report",
+                    $"Dismissed report ID {reportId} on post: '{report.Post.Title}'");
+
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Report dismissed successfully.";
+                TempData["Success"] = "Report dismissed. Post status restored if no other reports remain.";
             }
+
             return RedirectToPage(new { Filter });
         }
 
@@ -75,10 +84,11 @@ namespace Pethub.Pages.Admin
             if (post != null)
             {
                 _context.Post.Remove(post);
-                LogActivity("Deleted Post", $"Deleted reported Post ID: {postId}");
+                LogActivity("Deleted Post", $"Deleted reported post ID: {postId} titled '{post.Title}'");
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Post deleted successfully.";
             }
+
             return RedirectToPage(new { Filter });
         }
 
@@ -99,22 +109,23 @@ namespace Pethub.Pages.Admin
                     LogActivity("Banned User", $"Admin banned user: {account.Username}");
                     TempData["Success"] = $"User {account.Username} has been banned.";
                 }
+
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToPage(new { Filter });
         }
 
         private void LogActivity(string action, string details)
         {
-            var log = new ActivityLog
+            _context.ActivityLog.Add(new ActivityLog
             {
-                AccountId = null, // Admin action
+                AccountId = null,
                 Role = "Admin",
                 Action = action,
                 Details = details,
                 Timestamp = DateTime.Now
-            };
-            _context.ActivityLog.Add(log);
+            });
         }
     }
 }

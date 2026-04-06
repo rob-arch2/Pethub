@@ -30,7 +30,7 @@ namespace Pethub.Pages.AccountManagement
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ CreateModel: Exception in OnGet");
+                _logger?.LogError(ex, "CreateModel: Exception in OnGet");
                 return Page();
             }
         }
@@ -55,12 +55,12 @@ namespace Pethub.Pages.AccountManagement
                 _context.Account.Add(Account);
                 await _context.SaveChangesAsync();
 
-                _logger?.LogInformation("✓ CreateModel: Account created successfully - Username={Username}", Account.Username);
+                _logger?.LogInformation("CreateModel: Account created successfully - Username={Username}", Account.Username);
                 return RedirectToPage("./Index");
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ CreateModel: Exception during account creation");
+                _logger?.LogError(ex, "CreateModel: Exception during account creation");
                 ModelState.AddModelError("", "An error occurred while creating the account.");
                 return Page();
             }

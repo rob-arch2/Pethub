@@ -74,8 +74,6 @@ namespace Pethub
                     return Page();
                 }
 
-                // Don't allow duplicate emails
-                _logger?.LogDebug("RegisterModel: Checking if email exists - {Email}", Email);
                 bool emailExists = await _context.Account.AnyAsync(a => a.Email == Email);
                 if (emailExists)
                 {
@@ -84,8 +82,6 @@ namespace Pethub
                     return Page();
                 }
 
-                // Don't allow duplicate display names either
-                _logger?.LogDebug("RegisterModel: Checking if username exists - {FullName}", FullName);
                 bool usernameExists = await _context.Account.AnyAsync(a => a.Username == FullName);
                 if (usernameExists)
                 {
@@ -94,11 +90,10 @@ namespace Pethub
                     return Page();
                 }
 
-                // Block underage registrations
                 var today = DateTime.Today;
                 int age = today.Year - BirthDate.Year;
                 if (BirthDate.Date > today.AddYears(-age)) age--;
-                
+
                 _logger?.LogDebug("RegisterModel: Age validation - Age={Age}", age);
                 if (age < 18)
                 {
@@ -119,10 +114,20 @@ namespace Pethub
                     Age = age
                 };
 
-                _logger?.LogDebug("RegisterModel: Adding new account to database - Username={Username}", FullName);
                 _context.Account.Add(account);
                 await _context.SaveChangesAsync();
-                
+
+                // Log registration — Id is available after first SaveChangesAsync
+                _context.ActivityLog.Add(new ActivityLog
+                {
+                    AccountId = account.Id,
+                    Role = "User",
+                    Action = "Registered",
+                    Details = $"New account registered with email '{account.Email}'",
+                    Timestamp = DateTime.Now
+                });
+                await _context.SaveChangesAsync();
+
                 _logger?.LogInformation("✓ RegisterModel: Registration successful - Username={Username}, Email={Email}", FullName, Email);
 
                 TempData["ToastSuccess"] = "Registration successful! Welcome to PetHub. Please log in.";
@@ -136,7 +141,6 @@ namespace Pethub
             }
         }
 
-        // Must match the hashing method in Login so passwords can be compared
         private string HashPassword(string password)
         {
             try

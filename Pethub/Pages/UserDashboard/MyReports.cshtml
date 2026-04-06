@@ -1,0 +1,128 @@
+﻿@page
+@model Pethub.Pages.UserDashboard.MyReportsModel
+@{
+    ViewData["Title"] = "My Reports";
+    Layout = "_Layout";
+}
+
+<div class="admin-topbar">
+    <h4 class="admin-topbar-title">My Reports</h4>
+</div>
+
+<div class="admin-table-container">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4"
+             style="background-color:#e6f4ea;color:#2e7d32;">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="dash-card">
+        @if (!Model.Reports.Any())
+        {
+            <div class="text-center py-5">
+                <div class="text-muted fs-1 mb-2"><i class="bi bi-flag"></i></div>
+                <div class="text-muted fw-semibold">You haven't submitted any reports yet.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle admin-table mb-0">
+                    <thead style="background:#f8f9fa;">
+                        <tr>
+                            <th class="text-muted fw-bold text-uppercase small py-3 px-4">Date & Time</th>
+                            <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reported Post</th>
+                            <th class="text-muted fw-bold text-uppercase small py-3 px-4">Reason & Detail</th>
+                            <th class="text-muted fw-bold text-uppercase small py-3 px-4">Status</th>
+                            <th class="text-muted fw-bold text-uppercase small py-3 px-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.Reports)
+                        {
+                            <tr style="border-bottom:1px solid #f0f2f5;">
+
+                                {{!-- Timestamp --}}
+                                <td class="text-muted px-4" style="white-space:nowrap;">
+                                    <div>@report.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                    <div class="small">@report.CreatedAt.ToString("hh:mm tt")</div>
+                                </td>
+
+                                {{!-- Post info --}}
+                                <td class="px-4">
+                                    <div class="fw-semibold" style="color:#2c3e50;">
+                                        @report.Post.Title
+                                    </div>
+                                    <div class="small text-muted">@report.Post.Category</div>
+                                </td>
+
+                                {{!-- Reason + detail --}}
+                                <td class="px-4">
+                                    <span class="status-badge status-rejected">
+                                        @report.ReasonCategory
+                                    </span>
+                                    @if (!string.IsNullOrWhiteSpace(report.ReasonDetail))
+                                    {
+                                        <div class="small text-muted mt-1"
+                                             style="max-width:240px;word-break:break-word;">
+                                            @report.ReasonDetail
+                                        </div>
+                                    }
+                                </td>
+
+                                {{!-- Report status --}}
+                                <td class="px-4">
+                                    @if (report.Status == "Active")
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning
+                                                                 border border-warning">
+                                            Under Review
+                                        </span>
+                                    }
+                                    else if (report.Status == "Dismissed")
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary
+                                                                 border border-secondary">
+                                            Dismissed
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success
+                                                                 border border-success">
+                                            @report.Status
+                                        </span>
+                                    }
+                                </td>
+
+                                {{!-- Retract action (only for active reports) --}}
+                                <td class="px-4 text-center">
+                                    @if (report.Status == "Active")
+                                    {
+                                        <form method="post" asp-page-handler="Retract"
+                                              asp-route-reportId="@report.Id"
+                                              onsubmit="return confirm('Retract this report? The post may be restored to active if no other reports remain.');">
+                                            <button type="submit" class="action-btn action-reject"
+                                                    style="font-size:12px;padding:4px 12px;">
+                                                Retract
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
