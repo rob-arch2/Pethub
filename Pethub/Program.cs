@@ -1,15 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Kestrel: enough headroom for multipart image uploads ─────────────────────
-// Page handler enforces the 5 MB user-facing cap; Kestrel needs to be
-// at least as large as the cap plus multipart form overhead.
+// ── Kestrel: enough headroom for multipart image uploads ─────────────────────
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+
+    // NEW: Stop the server from crashing if Brave sends bloated localhost cookies
+    options.Limits.MaxRequestHeadersTotalSize = 131072; // 128 KB (Default is 32 KB)
 });
+// ==============================================================================
+// ── CRITICAL FIX: GLOBAL FORM OPTIONS ─────────────────────────────────────────
+// ==============================================================================
+// 1. Prevents Anti-Forgery token validation from crashing the connection.
+// 2. MemoryBufferThreshold forces files under 10MB to stay in RAM during upload, 
+//    preventing the server from crashing due to Windows %TEMP% folder write permissions.
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
+    options.ValueLengthLimit = 10 * 1024 * 1024;         // 10 MB
+    options.MemoryBufferThreshold = 10 * 1024 * 1024;    // Keep up to 10MB in RAM!
+});
+// ==============================================================================
 
 builder.Services.AddRazorPages();
 
@@ -39,8 +55,6 @@ app.UseHttpsRedirection();
 
 // UseStaticFiles() serves ANY file present in wwwroot/ at request time,
 // including images uploaded at runtime to wwwroot/uploads/.
-// MapStaticAssets() only knows about files in its compile-time manifest
-// and will 404 on dynamically created files — it must NOT replace UseStaticFiles().
 app.UseStaticFiles();
 
 app.UseRouting();

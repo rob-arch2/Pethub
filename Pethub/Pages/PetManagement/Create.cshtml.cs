@@ -63,9 +63,10 @@ namespace Pethub.Pages.PetManagement
 
                     Pet.ImagePath = $"/uploads/{fileName}";
                 }
-                catch
+                catch (Exception ex)
                 {
-                    ErrorMessage = "Image upload failed. Please try a different file.";
+                    // Expose the exact system error to the UI to help debug permissions
+                    ErrorMessage = $"Image upload failed: {ex.Message}";
                     return Page();
                 }
             }

@@ -1,0 +1,106 @@
+﻿@page
+@model Pethub.Pages.Posts.EditModel
+@{
+    ViewData["Title"] = "Edit Post";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold m-0" style="color: #2c3e50;">Edit Post</h3>
+                        <a href="/UserDashboard/Index" class="btn btn-outline-secondary btn-sm">Back to Profile</a>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger rounded-3">@Model.ErrorMessage</div>
+                    }
+
+                    <form method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Post.Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="Post.Title" class="form-label fw-semibold">Title</label>
+                            <span class="text-danger">*</span>
+                            <input asp-for="Post.Title" class="form-control" placeholder="What are you posting about?" />
+                            <span asp-validation-for="Post.Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Post.Location" class="form-label fw-semibold">Location</label>
+                            <span class="text-danger">*</span>
+                            <input asp-for="Post.Location" class="form-control" placeholder="City, Neighborhood, etc." />
+                            <span asp-validation-for="Post.Location" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Post.Category" class="form-label fw-semibold">Category</label>
+                                <span class="text-danger">*</span>
+                                <select asp-for="Post.Category" class="form-select">
+                                    <option value="">— Select Category —</option>
+                                    <option value="Adoption">Adoption</option>
+                                    <option value="Lost Pet">Lost Pet</option>
+                                    <option value="For Sale">For Sale</option>
+                                    <option value="Found Pet">Found Pet</option>
+                                </select>
+                                <span asp-validation-for="Post.Category" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Post.Price" class="form-label fw-semibold">
+                                    Price <span class="text-muted small fw-normal">(leave blank if free)</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    <input asp-for="Post.Price" type="number" step="0.01" min="0" class="form-control" placeholder="0" />
+                                </div>
+                                <span asp-validation-for="Post.Price" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Post.Description" class="form-label fw-semibold">Description</label>
+                            <span class="text-danger">*</span>
+                            <textarea asp-for="Post.Description" class="form-control" rows="5" placeholder="Provide details about the pet or item..."></textarea>
+                            <span asp-validation-for="Post.Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4 p-3 bg-light rounded border border-light-subtle">
+                            <label class="form-label fw-semibold mb-3">Update Image (Optional)</label>
+
+                            @if (!string.IsNullOrEmpty(Model.Post.ImagePath))
+                            {
+                                <div class="d-flex align-items-start gap-3 mb-3">
+                                    <img src="@Model.Post.ImagePath" alt="Current Image" class="rounded shadow-sm" style="width: 100px; height: 100px; object-fit: cover;" />
+                                    <div class="text-muted small mt-2">
+                                        <strong>Current Image</strong><br />
+                                        Uploading a new image will permanently replace this one.
+                                    </div>
+                                </div>
+                            }
+
+                            <input type="file" name="imageFile" class="form-control" accept="image/jpeg, image/png, image/gif, image/webp, image/heic" />
+                            <div class="form-text mt-2">Leave this blank to keep your current image. Maximum size: 5MB.</div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary py-2 fw-bold" style="background-color: #c97b67; border-color: #c97b67; font-size: 16px;">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
