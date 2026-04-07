@@ -1,80 +1,61 @@
 ﻿@page
-@model Pethub.Pages.AccountManagement.DetailsModel
+@model Pethub.Pages.PetManagement.DetailsModel
 @{
-    ViewData["Title"] = "Account Details";
+    ViewData["Title"] = "Pet Details";
     Layout = "_Layout";
 }
 
 <div class="admin-topbar">
-    <h4 class="admin-topbar-title">Account Details</h4>
-    <a href="/AccountManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px;">Back to List</a>
+    <h4 class="admin-topbar-title">Pet Details</h4>
+    <a href="/PetManagement/Index" class="action-btn action-view" style="padding:8px 16px;font-size:13px; text-decoration:none;">Back to List</a>
 </div>
 
 <div class="admin-table-container">
     <div class="dash-card" style="max-width:600px;">
-
-        <div class="admin-view-poster mb-4">
-            <div class="admin-view-avatar">
-                @Model.Account.Username[0].ToString().ToUpper()
-            </div>
-            <div>
-                <div class="fw-bold fs-5">@Model.Account.Username</div>
-                <div class="text-muted small">@Model.Account.Email</div>
-            </div>
-            <div class="ms-auto">
-                @if (Model.Account.Gender == "Male")
-                {
-                    <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Male</span>
-                }
-                else
-                {
-                    <span class="status-badge" style="background:#fce4ec;color:#880e4f;">Female</span>
-                }
+        <div class="d-flex align-items-center mb-4">
+            @if (!string.IsNullOrEmpty(Model.Pet.ImagePath))
+            {
+                <img src="@Model.Pet.ImagePath" alt="@Model.Pet.Name" class="rounded border" style="width: 100px; height: 100px; object-fit: cover;" />
+            }
+            else
+            {
+                <div class="rounded border d-flex align-items-center justify-content-center text-muted" style="width: 100px; height: 100px; background-color: #f0f0f0; font-size: 40px;">
+                    🐾
+                </div>
+            }
+            <div class="ms-4">
+                <h3 class="fw-bold mb-1">@Model.Pet.Name</h3>
+                <div class="text-muted fs-5">@Model.Pet.Species · @Model.Pet.Breed</div>
             </div>
         </div>
 
         <hr />
 
-        <dl class="row mb-0">
-            <dt class="col-sm-4 text-muted">Password (hash)</dt>
-            <dd class="col-sm-8">
-                <div class="bg-light text-muted" style="font-size:11px;word-break:break-all;padding:6px 10px;border-radius:6px;">
-                    @Model.HashedPassword
-                </div>
-            </dd>
-
-            <dt class="col-sm-4 text-muted mt-2">Address</dt>
-            <dd class="col-sm-8 mt-2">@Model.Account.Address</dd>
-
-            <dt class="col-sm-4 text-muted">Contact</dt>
-            <dd class="col-sm-8">@Model.Account.Contact</dd>
-
-            <dt class="col-sm-4 text-muted">Birthday</dt>
-            <dd class="col-sm-8">@Model.Account.Birthday.ToString("MMMM dd, yyyy")</dd>
-
+        <dl class="row mb-0" style="line-height: 2.5;">
             <dt class="col-sm-4 text-muted">Age</dt>
-            <dd class="col-sm-8">@Model.Account.Age yrs old</dd>
+            <dd class="col-sm-8 fw-semibold">@Model.Pet.Age years old</dd>
 
-            <dt class="col-sm-4 text-muted">Status</dt>
+            <dt class="col-sm-4 text-muted">Vaccination</dt>
             <dd class="col-sm-8">
-                @if (Model.Account.AccountStatus == "Banned")
+                @if (Model.Pet.VaccinationStatus == "Fully Vaccinated")
                 {
-                    <span class="badge bg-danger">Banned</span>
+                    <span class="badge bg-success">@Model.Pet.VaccinationStatus</span>
                 }
                 else
                 {
-                    <span class="badge bg-success">Active</span>
+                    <span class="badge bg-warning text-dark">@Model.Pet.VaccinationStatus</span>
                 }
             </dd>
+
+            <dt class="col-sm-4 text-muted">Owner ID</dt>
+            <dd class="col-sm-8 text-muted">#@Model.Pet.AccountId</dd>
         </dl>
 
         <hr />
 
         <div class="d-flex gap-2">
-            <a asp-page="./Edit" asp-route-id="@Model.Account.Id" class="action-btn action-approve text-decoration-none" style="padding:10px 24px;font-size:14px;">Edit</a>
-            <a asp-page="./Delete" asp-route-id="@Model.Account.Id" class="action-btn action-reject text-decoration-none" style="padding:10px 24px;font-size:14px;">Delete</a>
-            <a href="/AccountManagement/Index" class="action-btn action-view text-decoration-none" style="padding:10px 24px;font-size:14px;">Back</a>
+            <a asp-page="./Edit" asp-route-id="@Model.Pet.Id" class="action-btn action-approve text-decoration-none" style="padding:10px 24px;font-size:14px;">Edit Pet</a>
+            <a asp-page="./Delete" asp-route-id="@Model.Pet.Id" class="action-btn action-reject text-decoration-none" style="padding:10px 24px;font-size:14px;">Delete</a>
         </div>
-
     </div>
 </div>

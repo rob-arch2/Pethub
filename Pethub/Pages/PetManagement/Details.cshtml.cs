@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pethub.Data;
 using Pethub.Models;
 
 namespace Pethub.Pages.PetManagement
 {
-    public class DetailsModel : PageModel
+    // Changed from PageModel to AuthenticatedPageModel to fix the redirect
+    public class DetailsModel : AuthenticatedPageModel
     {
-        private readonly Pethub.Data.PethubContext _context;
+        private readonly PethubContext _context;
 
-        public DetailsModel(Pethub.Data.PethubContext context)
+        public DetailsModel(PethubContext context)
         {
             _context = context;
         }
@@ -24,20 +20,20 @@ namespace Pethub.Pages.PetManagement
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
+            // Find the pet and ensure it belongs to the logged-in user
             var pet = await _context.Pet.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (pet is not null)
-            {
-                Pet = pet;
+            if (pet == null)
+                return NotFound();
 
-                return Page();
-            }
+            // Security: If the pet doesn't belong to the current user, send them back
+            if (pet.AccountId != (CurrentAccountId ?? 0))
+                return RedirectToPage("./Index");
 
-            return NotFound();
+            Pet = pet;
+            return Page();
         }
     }
 }

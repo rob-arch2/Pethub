@@ -32,29 +32,49 @@ namespace Pethub.Pages.PetManagement
                 return RedirectToPage("./Index");
 
             Pet = pet;
-            ViewData["AccountId"] = new SelectList(_context.Account, "Id", "Address");
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-                return Page();
+            // Remove validation for related data we don't handle in the form
+            ModelState.Remove("Pet.Account");
+            ModelState.Remove("Pet.AccountId");
+            ModelState.Remove("Pet.ImagePath");
 
-            // Log the pet edit
-            _context.ActivityLog.Add(new ActivityLog
+            if (!ModelState.IsValid)
             {
-                AccountId = CurrentAccountId ?? 0,
-                Role = "User",
-                Action = "Edited Pet",
-                Details = $"Updated details for pet '{Pet.Name}'",
-                Timestamp = DateTime.Now
-            });
+                return Page();
+            }
+
+            // Ensure the pet still belongs to the current user
+            var existingPet = await _context.Pet.AsNoTracking().FirstOrDefaultAsync(p => p.Id == Pet.Id);
+            if (existingPet == null || existingPet.AccountId != (CurrentAccountId ?? 0))
+            {
+                return RedirectToPage("./Index");
+            }
+
+            // Keep the original AccountId and ImagePath
+            Pet.AccountId = existingPet.AccountId;
+            if (string.IsNullOrEmpty(Pet.ImagePath))
+            {
+                Pet.ImagePath = existingPet.ImagePath;
+            }
 
             _context.Attach(Pet).State = EntityState.Modified;
 
             try
             {
+                // Log the pet edit
+                _context.ActivityLog.Add(new ActivityLog
+                {
+                    AccountId = CurrentAccountId ?? 0,
+                    Role = "User",
+                    Action = "Edited Pet",
+                    Details = $"Updated details for pet '{Pet.Name}'",
+                    Timestamp = DateTime.Now
+                });
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)

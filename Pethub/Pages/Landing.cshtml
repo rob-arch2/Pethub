@@ -9,7 +9,9 @@
 
 <div class="admin-topbar d-flex justify-content-between align-items-center">
     <h4 class="admin-topbar-title mb-0">Community Newsfeed</h4>
-    <span class="fw-semibold text-muted">Welcome, @Model.AccountUsername!</span>
+    <span class="fw-semibold" style="color:#7a6652;font-size:14px;">
+        Welcome, @Model.AccountUsername!
+    </span>
 </div>
 
 <div class="admin-table-container">
@@ -42,8 +44,12 @@
         {
             <div class="feed-empty dash-card text-center py-5">
                 <div style="font-size:56px;margin-bottom:16px;">🐾</div>
-                <p class="text-muted fw-semibold">No posts yet. Be the first to post something!</p>
-                <a href="/Posts/Create" class="btn btn-primary mt-2">Create a Post</a>
+                <p class="fw-semibold" style="color:#7a6652;">
+                    No posts yet. Be the first to post something!
+                </p>
+                <a href="/Posts/Create" class="action-btn action-approve mt-2 text-decoration-none">
+                    Create a Post
+                </a>
             </div>
         }
         else
@@ -51,7 +57,23 @@
             <div class="posts-grid" id="postsGrid">
                 @foreach (var post in Model.Posts)
                 {
-                    <div class="post-card dash-card" data-category="@post.Category">
+                    <div class="post-card"
+                         data-category="@post.Category"
+                         data-id="@post.Id"
+                         data-title="@post.Title"
+                         data-description="@post.Description"
+                         data-category-label="@post.Category"
+                         data-price="@(post.Price.HasValue && post.Price > 0 ? "₱" + post.Price.Value.ToString("N0") : "Free")"
+                         data-location="@post.Location"
+                         data-author="@post.Account.Username"
+                         data-author-id="@post.AccountId"
+                         data-contact="@post.Account.Contact"
+                         data-address="@post.Account.Address"
+                         data-date="@post.CreatedAt.ToString("MMMM dd, yyyy · hh:mm tt")"
+                         data-image="@post.ImagePath"
+                         data-own="@(post.AccountId == Model.CurrentAccountId ? "true" : "false")"
+                         onclick="openPostModal(this)"
+                         style="cursor:pointer;">
 
                         @if (!string.IsNullOrEmpty(post.ImagePath))
                         {
@@ -68,31 +90,39 @@
                                 </span>
                                 @if (post.Price.HasValue && post.Price > 0)
                                 {
-                                    <span class="post-price fw-bold text-success">₱@post.Price.Value.ToString("N0")</span>
+                                    <span class="post-price fw-bold">₱@post.Price.Value.ToString("N0")</span>
                                 }
                                 else
                                 {
-                                    <span class="post-free fw-bold text-secondary">Free</span>
+                                    <span class="post-free fw-bold">Free</span>
                                 }
                             </div>
 
                             <h5 class="post-title fw-bold mb-1">@post.Title</h5>
-                            <p class="post-desc text-muted small mb-3">@post.Description</p>
+                            <p class="post-desc text-muted small mb-2">@post.Description</p>
 
-                            <div class="post-meta text-muted small d-flex flex-column gap-1 mb-3">
+                            <div class="post-meta text-muted small mb-2">
                                 <span>📍 @post.Location</span>
                                 <span>🐾 @post.Account.Username</span>
                                 <span>🕒 @post.CreatedAt.ToString("MMM dd, yyyy")</span>
                             </div>
 
-                            @* Hide report button on the user's own posts *@
+                            <div class="post-contact-teaser">
+                                <i class="bi bi-telephone-fill me-1"></i>
+                                <a href="tel:@post.Account.Contact"
+                                   onclick="event.stopPropagation();"
+                                   style="color:#c97b67;text-decoration:none;font-size:13px;font-weight:600;">
+                                    @post.Account.Contact
+                                </a>
+                            </div>
+
                             @if (post.AccountId != Model.CurrentAccountId)
                             {
-                                <div class="post-card-footer border-top pt-2 mt-auto">
+                                <div class="post-card-footer border-top pt-2 mt-2">
                                     <button class="btn btn-sm btn-outline-danger w-100"
+                                            onclick="event.stopPropagation(); setReportPost(@post.Id);"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#reportModal"
-                                            onclick="setReportPost(@post.Id)">
+                                            data-bs-target="#reportModal">
                                         <i class="bi bi-flag"></i> Report
                                     </button>
                                 </div>
@@ -106,23 +136,130 @@
     </div>
 </div>
 
+<div class="modal fade" id="postDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
+
+            <!-- Added 'height' and fixed 'display' -->
+            <div id="modalImageWrap" style="display: flex; height: 400px; background: #f0e8da; align-items: center; justify-content: center; width: 100%;">
+                <img id="modalImage" src="your-image.jpg" alt=""
+                     style="max-width: 100%; max-height: 100%; display: block; margin: auto; object-fit: contain;" />
+            </div>
+
+            <div class="modal-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="modalCategory" class="post-category-badge"></span>
+                    <span id="modalPrice"
+                          class="fw-bold fs-5" style="color:#c97b67;"></span>
+                </div>
+
+                <h4 id="modalTitle"
+                    class="fw-bold mb-2"
+                    style="    font-family: system-ui, -apple-system, sans-serif;color:#2c1a0e;"></h4>
+
+                <p id="modalDescription"
+                   class="mb-3"
+                   style="color:#5a4030;line-height:1.7;font-size:15px;"></p>
+
+                <hr style="border-color:#ddd0b8;" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-geo-alt-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Location</div>
+                                <div id="modalLocation" class="detail-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-clock-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Posted On</div>
+                                <div id="modalDate" class="detail-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-person-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Posted By</div>
+                                <a id="modalAuthorLink" href="#"
+                                   class="detail-value fw-bold"
+                                   style="color:#c97b67;text-decoration:none;">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-telephone-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Contact</div>
+                                <a id="modalContact" href="#"
+                                   class="detail-value fw-bold"
+                                   style="color:#c97b67;text-decoration:none;">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-house-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Author's Address</div>
+                                <div id="modalAddress" class="detail-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modalReportWrap" class="mt-2">
+                    <button class="btn btn-outline-danger btn-sm w-100"
+                            id="modalReportBtn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reportModal">
+                        <i class="bi bi-flag me-1"></i> Report this Post
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="modal-footer" style="border-top:1px solid #ddd0b8;background:#fffdf8;">
+                <button type="button" class="action-btn action-view"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <form method="post" asp-page-handler="Report">
                 <input type="hidden" name="postId" id="reportPostId" />
 
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold">Report Post</h5>
+                <div class="modal-header" style="background:#fffdf8;border-bottom:1px solid #ddd0b8;">
+                    <h5 class="modal-title fw-bold" style="    font-family: system-ui, -apple-system, sans-serif;">
+                        Report Post
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
-                <div class="modal-body">
+                <div class="modal-body" style="background:#fffdf8;">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
                             Reason <span class="text-danger">*</span>
                         </label>
-                        <select name="reasonCategory" class="form-select" required>
+                        <select name="reasonCategory" class="form-select" required
+                                style="border-color:#ddd0b8;">
                             <option value="">— Select a reason —</option>
                             <option value="Spam">Spam</option>
                             <option value="Abuse">Abuse</option>
@@ -137,16 +274,17 @@
                         </label>
                         <textarea name="reasonDetail" class="form-control" rows="3"
                                   maxlength="500"
-                                  placeholder="Describe the issue in more detail..."></textarea>
+                                  placeholder="Describe the issue in more detail..."
+                                  style="border-color:#ddd0b8;"></textarea>
                     </div>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light btn-sm"
+                <div class="modal-footer" style="background:#fffdf8;border-top:1px solid #ddd0b8;">
+                    <button type="button" class="action-btn action-view"
                             data-bs-dismiss="modal">
                         Cancel
                     </button>
-                    <button type="submit" class="btn btn-danger btn-sm">Submit Report</button>
+                    <button type="submit" class="action-btn action-reject">Submit Report</button>
                 </div>
             </form>
         </div>
@@ -160,13 +298,17 @@
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title fw-bold">Account Restricted</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <p class="mb-0">@TempData["BannedPopup"]</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Understood</button>
+                    <button type="button" class="action-btn action-view"
+                            data-bs-dismiss="modal">
+                        Understood
+                    </button>
                 </div>
             </div>
         </div>
@@ -175,40 +317,104 @@
 
 @section Scripts {
     <script>
-        // DOM-based category filter (no page reload)
+        // ── Category filter ───────────────────────────────────────────
         const filterBtns = document.querySelectorAll('.filter-btn');
-        const cards = document.querySelectorAll('#postsGrid .post-card');
+        const cards      = document.querySelectorAll('#postsGrid .post-card');
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', function () {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-
                 const filter = this.dataset.filter;
                 cards.forEach(card => {
-                    card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+                    card.style.display =
+                        (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
                 });
             });
         });
 
-        // Populate hidden postId before the modal opens
+        // ── Report modal helpers ──────────────────────────────────────
+        let currentPostId = null;
+
         function setReportPost(id) {
+            currentPostId = id;
             document.getElementById('reportPostId').value = id;
         }
 
-        // Show the banned modal if TempData populated it
-        document.addEventListener('DOMContentLoaded', function () {
-            var bannedModalElement = document.getElementById('bannedModal');
-            if (bannedModalElement) {
-                var bannedModal = new bootstrap.Modal(bannedModalElement);
-                bannedModal.show();
+        // ── Post detail modal ─────────────────────────────────────────
+        function openPostModal(card) {
+            const d = card.dataset;
+
+            // Image
+            const imgWrap = document.getElementById('modalImageWrap');
+            const img     = document.getElementById('modalImage');
+            if (d.image) {
+                img.src          = d.image;
+                imgWrap.style.display = '';
+            } else {
+                imgWrap.style.display = 'none';
             }
+
+            // Category badge
+            const catEl  = document.getElementById('modalCategory');
+            catEl.textContent = d.categoryLabel;
+            catEl.className   = 'post-category-badge ' + categoryClass(d.categoryLabel);
+
+            // Fields
+            document.getElementById('modalPrice').textContent       = d.price;
+            document.getElementById('modalTitle').textContent       = d.title;
+            document.getElementById('modalDescription').textContent = d.description;
+            document.getElementById('modalLocation').textContent    = d.location;
+            document.getElementById('modalDate').textContent        = d.date;
+            document.getElementById('modalAddress').textContent     = d.address;
+
+            // Author link
+            const authorLink      = document.getElementById('modalAuthorLink');
+            authorLink.textContent = d.author;
+            authorLink.href        = '/Profile/View?id=' + d.authorId;
+
+            // Contact
+            const contactEl      = document.getElementById('modalContact');
+            contactEl.textContent = d.contact;
+            contactEl.href        = 'tel:' + d.contact;
+
+            // Report button — hide for own posts
+            const reportWrap = document.getElementById('modalReportWrap');
+            const reportBtn  = document.getElementById('modalReportBtn');
+            if (d.own === 'true') {
+                reportWrap.style.display = 'none';
+            } else {
+                reportWrap.style.display = '';
+                reportBtn.onclick = () => {
+                    setReportPost(d.id);
+                    document.getElementById('reportPostId').value = d.id;
+                };
+            }
+
+            // Open
+            const modalEl = document.getElementById('postDetailModal');
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
+
+        function categoryClass(cat) {
+            const map = {
+                'Adoption':  'cat-adoption',
+                'Lost Pet':  'cat-lost',
+                'For Sale':  'cat-sale',
+                'Found Pet': 'cat-found'
+            };
+            return map[cat] || '';
+        }
+
+        // ── Banned popup ──────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            const bannedEl = document.getElementById('bannedModal');
+            if (bannedEl) bootstrap.Modal.getOrCreateInstance(bannedEl).show();
         });
     </script>
 }
 
 @functions {
-    // Maps a category string to its CSS badge class
     static string CategoryClass(string category) => category switch
     {
         "Adoption" => "cat-adoption",

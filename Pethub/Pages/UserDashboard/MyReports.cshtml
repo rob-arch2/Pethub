@@ -46,13 +46,11 @@
                         {
                             <tr style="border-bottom:1px solid #f0f2f5;">
 
-                                {{!-- Timestamp --}}
                                 <td class="text-muted px-4" style="white-space:nowrap;">
                                     <div>@report.CreatedAt.ToString("MMM dd, yyyy")</div>
                                     <div class="small">@report.CreatedAt.ToString("hh:mm tt")</div>
                                 </td>
 
-                                {{!-- Post info --}}
                                 <td class="px-4">
                                     <div class="fw-semibold" style="color:#2c3e50;">
                                         @report.Post.Title
@@ -60,7 +58,6 @@
                                     <div class="small text-muted">@report.Post.Category</div>
                                 </td>
 
-                                {{!-- Reason + detail --}}
                                 <td class="px-4">
                                     <span class="status-badge status-rejected">
                                         @report.ReasonCategory
@@ -74,7 +71,6 @@
                                     }
                                 </td>
 
-                                {{!-- Report status --}}
                                 <td class="px-4">
                                     @if (report.Status == "Active")
                                     {
@@ -99,7 +95,6 @@
                                     }
                                 </td>
 
-                                {{!-- Retract action (only for active reports) --}}
                                 <td class="px-4 text-center">
                                     @if (report.Status == "Active")
                                     {

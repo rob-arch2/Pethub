@@ -101,24 +101,20 @@
                     {
                         <tr style="border-bottom:1px solid #f0f2f5;">
 
-                            {{!-- Precise timestamp --}}
                             <td class="text-muted px-4" style="white-space:nowrap;">
                                 <div>@item.CreatedAt.ToString("MMM dd, yyyy")</div>
                                 <div class="small text-muted">@item.CreatedAt.ToString("hh:mm tt")</div>
                             </td>
 
-                            {{!-- Post title + category --}}
                             <td class="px-4">
                                 <div class="fw-semibold" style="color:#2c3e50;">@item.Post.Title</div>
                                 <div class="small text-muted">@item.Post.Category</div>
                             </td>
 
-                            {{!-- Reporter --}}
                             <td class="px-4">
                                 <span class="badge bg-light text-dark border">@@@item.Reporter.Username</span>
                             </td>
 
-                            {{!-- Reason category + detail text --}}
                             <td class="px-4">
                                 <span class="status-badge status-rejected">@item.ReasonCategory</span>
                                 @if (!string.IsNullOrWhiteSpace(item.ReasonDetail))
@@ -130,7 +126,6 @@
                                 }
                             </td>
 
-                            {{!-- Actions --}}
                             <td class="px-4 text-end">
                                 <form method="post" class="d-inline-flex gap-2 flex-wrap justify-content-end">
                                     <input type="hidden" name="Filter" value="@Model.Filter" />
