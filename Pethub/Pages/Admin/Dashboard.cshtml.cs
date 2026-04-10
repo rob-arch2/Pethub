@@ -123,7 +123,7 @@ namespace Pethub.Pages.Admin
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ DashboardModel: Exception in OnGetAsync");
+                _logger?.LogError(ex, "  DashboardModel: Exception in OnGetAsync");
                 TotalAccounts = 0;
             }
         }

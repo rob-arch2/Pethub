@@ -40,7 +40,7 @@ namespace Pethub.Pages
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ LogoutModel: Exception during session clear");
+                _logger?.LogError(ex, "  LogoutModel: Exception during session clear");
                 // Even if session clear fails, redirect to login
                 return RedirectToPage("/Login");
             }

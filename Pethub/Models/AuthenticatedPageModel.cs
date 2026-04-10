@@ -148,7 +148,7 @@ namespace Pethub.Models
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "❌ [AuthCheck-FAILED] Exception in OnPageHandlerExecuting: {ExceptionType}", ex.GetType().Name);
+                Logger?.LogError(ex, "  [AuthCheck-FAILED] Exception in OnPageHandlerExecuting: {ExceptionType}", ex.GetType().Name);
                 Logger?.LogError("Stack trace: {StackTrace}", ex.StackTrace);
                 context.Result = RedirectToPage("/Login");
             }

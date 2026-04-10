@@ -40,7 +40,7 @@ namespace Pethub.Pages.UserDashboard
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ EditProfileModel: Exception in OnGetAsync");
+                _logger?.LogError(ex, "  EditProfileModel: Exception in OnGetAsync");
                 return RedirectToPage("/Login");
             }
         }
@@ -93,7 +93,7 @@ namespace Pethub.Pages.UserDashboard
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
-                    _logger?.LogError(ex, "❌ EditProfileModel: Concurrency error while saving account");
+                    _logger?.LogError(ex, "  EditProfileModel: Concurrency error while saving account");
                     return NotFound();
                 }
 
@@ -106,7 +106,7 @@ namespace Pethub.Pages.UserDashboard
                     }
                     catch (Exception ex)
                     {
-                        _logger?.LogError(ex, "❌ EditProfileModel: Failed to update session username");
+                        _logger?.LogError(ex, "  EditProfileModel: Failed to update session username");
                     }
                 }
                 else
@@ -120,7 +120,7 @@ namespace Pethub.Pages.UserDashboard
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ EditProfileModel: Unhandled exception in OnPostAsync");
+                _logger?.LogError(ex, "  EditProfileModel: Unhandled exception in OnPostAsync");
                 return Page();
             }
         }

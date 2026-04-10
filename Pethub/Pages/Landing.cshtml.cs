@@ -36,7 +36,7 @@ namespace Pethub.Pages
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Exception in LandingModel.OnGetAsync()");
+                _logger.LogError(ex, "  Exception in LandingModel.OnGetAsync()");
                 throw;
             }
         }
@@ -101,7 +101,7 @@ namespace Pethub.Pages
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Exception in OnPostReportAsync()");
+                _logger.LogError(ex, "Exception in OnPostReportAsync()");
                 TempData["Error"] = "An error occurred while reporting the post.";
                 return RedirectToPage();
             }

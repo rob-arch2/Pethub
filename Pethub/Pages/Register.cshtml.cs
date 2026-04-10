@@ -135,7 +135,7 @@ namespace Pethub
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ RegisterModel: Exception during registration");
+                _logger?.LogError(ex, "  RegisterModel: Exception during registration");
                 ErrorMessage = "Registration failed. Please try again.";
                 return Page();
             }
@@ -151,7 +151,7 @@ namespace Pethub
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "❌ RegisterModel: Exception during password hashing");
+                _logger?.LogError(ex, "  RegisterModel: Exception during password hashing");
                 throw;
             }
         }
