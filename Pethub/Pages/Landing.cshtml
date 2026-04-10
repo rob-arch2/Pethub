@@ -47,7 +47,8 @@
                 <p class="fw-semibold" style="color:#7a6652;">
                     No posts yet. Be the first to post something!
                 </p>
-                <a href="/Posts/Create" class="action-btn action-approve mt-2 text-decoration-none">
+                <a href="/Posts/Create"
+                   class="action-btn action-approve mt-2 text-decoration-none">
                     Create a Post
                 </a>
             </div>
@@ -57,7 +58,9 @@
             <div class="posts-grid" id="postsGrid">
                 @foreach (var post in Model.Posts)
                 {
-                    <div class="post-card"
+                    bool isCensored = post.Status == "Removed";
+
+                    <div class="post-card @(isCensored ? "post-card-censored" : "")"
                          data-category="@post.Category"
                          data-id="@post.Id"
                          data-title="@post.Title"
@@ -72,60 +75,81 @@
                          data-date="@post.CreatedAt.ToString("MMMM dd, yyyy · hh:mm tt")"
                          data-image="@post.ImagePath"
                          data-own="@(post.AccountId == Model.CurrentAccountId ? "true" : "false")"
+                         data-censored="@(isCensored ? "true" : "false")"
                          onclick="openPostModal(this)"
                          style="cursor:pointer;">
 
                         @if (!string.IsNullOrEmpty(post.ImagePath))
                         {
                             <div class="post-img-wrap">
-                                <img src="@post.ImagePath" alt="Post image" loading="lazy" />
+                                <img src="@post.ImagePath" alt="Post image" loading="lazy"
+                                     class="@(isCensored ? "censored-image" : "")" />
                             </div>
                         }
 
                         <div class="post-card-body p-3">
 
-                            <div class="post-card-header d-flex justify-content-between align-items-center mb-2">
-                                <span class="post-category-badge @CategoryClass(post.Category)">
-                                    @post.Category
-                                </span>
-                                @if (post.Price.HasValue && post.Price > 0)
-                                {
-                                    <span class="post-price fw-bold">₱@post.Price.Value.ToString("N0")</span>
-                                }
-                                else
-                                {
-                                    <span class="post-free fw-bold">Free</span>
-                                }
-                            </div>
-
-                            <h5 class="post-title fw-bold mb-1">@post.Title</h5>
-                            <p class="post-desc text-muted small mb-2">@post.Description</p>
-
-                            <div class="post-meta text-muted small mb-2">
-                                <span>📍 @post.Location</span>
-                                <span>🐾 @post.Account.Username</span>
-                                <span>🕒 @post.CreatedAt.ToString("MMM dd, yyyy")</span>
-                            </div>
-
-                            <div class="post-contact-teaser">
-                                <i class="bi bi-telephone-fill me-1"></i>
-                                <a href="tel:@post.Account.Contact"
-                                   onclick="event.stopPropagation();"
-                                   style="color:#c97b67;text-decoration:none;font-size:13px;font-weight:600;">
-                                    @post.Account.Contact
-                                </a>
-                            </div>
-
-                            @if (post.AccountId != Model.CurrentAccountId)
+                            @if (isCensored)
                             {
-                                <div class="post-card-footer border-top pt-2 mt-2">
-                                    <button class="btn btn-sm btn-outline-danger w-100"
-                                            onclick="event.stopPropagation(); setReportPost(@post.Id);"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#reportModal">
-                                        <i class="bi bi-flag"></i> Report
-                                    </button>
+                                <div class="censored-banner">
+                                    <i class="bi bi-slash-circle me-2"></i>
+                                    This post has been censored
                                 </div>
+                                <p class="text-muted small mt-2 mb-0"
+                                   style="font-size:12px;">
+                                    Click to view details.
+                                </p>
+                            }
+                            else
+                            {
+                                <div class="post-card-header d-flex justify-content-between
+                                                        align-items-center mb-2">
+                                    <span class="post-category-badge @CategoryClass(post.Category)">
+                                        @post.Category
+                                    </span>
+                                    @if (post.Price.HasValue && post.Price > 0)
+                                    {
+                                        <span class="post-price fw-bold">
+                                            ₱@post.Price.Value.ToString("N0")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="post-free fw-bold">Free</span>
+                                    }
+                                </div>
+
+                                <h5 class="post-title fw-bold mb-1">@post.Title</h5>
+                                <p class="post-desc text-muted small mb-2">@post.Description</p>
+
+                                <div class="post-meta text-muted small mb-2">
+                                    <span>📍 @post.Location</span>
+                                    <span>🐾 @post.Account.Username</span>
+                                    <span>🕒 @post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                </div>
+
+                                <div class="post-contact-teaser">
+                                    <i class="bi bi-telephone-fill me-1"></i>
+                                    <a href="tel:@post.Account.Contact"
+                                       onclick="event.stopPropagation();"
+                                       style="color:#c97b67;text-decoration:none;
+                                                          font-size:13px;font-weight:600;">
+                                        @post.Account.Contact
+                                    </a>
+                                </div>
+
+                                @if (post.AccountId != Model.CurrentAccountId)
+                                {
+                                    <div class="post-card-footer border-top pt-2 mt-2">
+                                        <button class="btn btn-sm btn-outline-danger w-100"
+                                                onclick="event.stopPropagation();
+                                                                         setReportPost(@post.Id);"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#reportModal">
+                                            <i class="bi bi-flag"></i> Report
+                                        </button>
+                                    </div>
+                                }
                             }
 
                         </div>
@@ -138,28 +162,32 @@
 
 <div class="modal fade" id="postDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius:16px;overflow:hidden;">
 
-            <!-- Added 'height' and fixed 'display' -->
-            <div id="modalImageWrap" style="display: flex; height: 400px; background: #f0e8da; align-items: center; justify-content: center; width: 100%;">
-                <img id="modalImage" src="your-image.jpg" alt=""
-                     style="max-width: 100%; max-height: 100%; display: block; margin: auto; object-fit: contain;" />
+            <div id="modalImageWrap"
+                 style="display:none;max-height:320px;overflow:hidden;background:#f0e8da;">
+                <img id="modalImage" src="" alt=""
+                     style="width:100%;height:320px;object-fit:cover;display:block;" />
+            </div>
+
+            <div id="modalCensoredBanner" class="censored-modal-banner" style="display:none;">
+                <i class="bi bi-slash-circle me-2"></i>
+                This post has been censored by an administrator.
             </div>
 
             <div class="modal-body p-4">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span id="modalCategory" class="post-category-badge"></span>
-                    <span id="modalPrice"
-                          class="fw-bold fs-5" style="color:#c97b67;"></span>
+                    <span id="modalPrice" class="fw-bold fs-5"
+                          style="color:#c97b67;"></span>
                 </div>
 
-                <h4 id="modalTitle"
-                    class="fw-bold mb-2"
-                    style="    font-family: system-ui, -apple-system, sans-serif;color:#2c1a0e;"></h4>
+                <h4 id="modalTitle" class="fw-bold mb-2"
+                    style="font-family:'Georgia',serif;color:#2c1a0e;"></h4>
 
-                <p id="modalDescription"
-                   class="mb-3"
+                <p id="modalDescription" class="mb-3"
                    style="color:#5a4030;line-height:1.7;font-size:15px;"></p>
 
                 <hr style="border-color:#ddd0b8;" />
@@ -190,8 +218,7 @@
                                 <div class="detail-label">Posted By</div>
                                 <a id="modalAuthorLink" href="#"
                                    class="detail-value fw-bold"
-                                   style="color:#c97b67;text-decoration:none;">
-                                </a>
+                                   style="color:#c97b67;text-decoration:none;"></a>
                             </div>
                         </div>
                     </div>
@@ -202,8 +229,7 @@
                                 <div class="detail-label">Contact</div>
                                 <a id="modalContact" href="#"
                                    class="detail-value fw-bold"
-                                   style="color:#c97b67;text-decoration:none;">
-                                </a>
+                                   style="color:#c97b67;text-decoration:none;"></a>
                             </div>
                         </div>
                     </div>
@@ -229,7 +255,8 @@
 
             </div>
 
-            <div class="modal-footer" style="border-top:1px solid #ddd0b8;background:#fffdf8;">
+            <div class="modal-footer"
+                 style="border-top:1px solid #ddd0b8;background:#fffdf8;">
                 <button type="button" class="action-btn action-view"
                         data-bs-dismiss="modal">
                     Close
@@ -246,8 +273,10 @@
             <form method="post" asp-page-handler="Report">
                 <input type="hidden" name="postId" id="reportPostId" />
 
-                <div class="modal-header" style="background:#fffdf8;border-bottom:1px solid #ddd0b8;">
-                    <h5 class="modal-title fw-bold" style="    font-family: system-ui, -apple-system, sans-serif;">
+                <div class="modal-header"
+                     style="background:#fffdf8;border-bottom:1px solid #ddd0b8;">
+                    <h5 class="modal-title fw-bold"
+                        style="font-family:'Georgia',serif;">
                         Report Post
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -279,12 +308,16 @@
                     </div>
                 </div>
 
-                <div class="modal-footer" style="background:#fffdf8;border-top:1px solid #ddd0b8;">
+                <div class="modal-footer"
+                     style="background:#fffdf8;border-top:1px solid #ddd0b8;">
                     <button type="button" class="action-btn action-view"
                             data-bs-dismiss="modal">
                         Cancel
                     </button>
-                    <button type="submit" class="action-btn action-reject">Submit Report</button>
+                    <button type="submit"
+                            class="action-btn action-reject">
+                        Submit Report
+                    </button>
                 </div>
             </form>
         </div>
@@ -328,35 +361,39 @@
                 const filter = this.dataset.filter;
                 cards.forEach(card => {
                     card.style.display =
-                        (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+                        (filter === 'all' || card.dataset.category === filter)
+                            ? '' : 'none';
                 });
             });
         });
 
-        // ── Report modal helpers ──────────────────────────────────────
-        let currentPostId = null;
-
+        // ── Report modal ──────────────────────────────────────────────
         function setReportPost(id) {
-            currentPostId = id;
             document.getElementById('reportPostId').value = id;
         }
 
         // ── Post detail modal ─────────────────────────────────────────
         function openPostModal(card) {
-            const d = card.dataset;
+            const d          = card.dataset;
+            const isCensored = d.censored === 'true';
 
-            // Image
+            // Censored notice banner
+            const censorBanner = document.getElementById('modalCensoredBanner');
+            censorBanner.style.display = isCensored ? '' : 'none';
+
+            // Image — still show it even if censored (blurred via CSS)
             const imgWrap = document.getElementById('modalImageWrap');
             const img     = document.getElementById('modalImage');
             if (d.image) {
-                img.src          = d.image;
+                img.src               = d.image;
+                img.style.filter      = 'none';
                 imgWrap.style.display = '';
             } else {
                 imgWrap.style.display = 'none';
             }
 
             // Category badge
-            const catEl  = document.getElementById('modalCategory');
+            const catEl       = document.getElementById('modalCategory');
             catEl.textContent = d.categoryLabel;
             catEl.className   = 'post-category-badge ' + categoryClass(d.categoryLabel);
 
@@ -368,32 +405,31 @@
             document.getElementById('modalDate').textContent        = d.date;
             document.getElementById('modalAddress').textContent     = d.address;
 
-            // Author link
-            const authorLink      = document.getElementById('modalAuthorLink');
+            // Author
+            const authorLink       = document.getElementById('modalAuthorLink');
             authorLink.textContent = d.author;
             authorLink.href        = '/Profile/View?id=' + d.authorId;
 
             // Contact
-            const contactEl      = document.getElementById('modalContact');
+            const contactEl       = document.getElementById('modalContact');
             contactEl.textContent = d.contact;
             contactEl.href        = 'tel:' + d.contact;
 
-            // Report button — hide for own posts
+            // Report button — hide for own posts AND censored posts
             const reportWrap = document.getElementById('modalReportWrap');
             const reportBtn  = document.getElementById('modalReportBtn');
-            if (d.own === 'true') {
+            if (d.own === 'true' || isCensored) {
                 reportWrap.style.display = 'none';
             } else {
                 reportWrap.style.display = '';
                 reportBtn.onclick = () => {
-                    setReportPost(d.id);
                     document.getElementById('reportPostId').value = d.id;
                 };
             }
 
-            // Open
-            const modalEl = document.getElementById('postDetailModal');
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('postDetailModal')
+            ).show();
         }
 
         function categoryClass(cat) {

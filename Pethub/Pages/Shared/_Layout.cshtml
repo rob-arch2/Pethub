@@ -22,7 +22,6 @@
         <aside class="admin-sidebar" id="mainSidebar">
             <div class="admin-sidebar-inner">
 
-                <!-- ── Header: paw + toggle ───────────────────────── -->
                 <div class="sidebar-header-row">
                     <div class="admin-logo">
                         <img src="~/images/paws1.png" alt="paw" />
@@ -41,6 +40,11 @@
                            class="admin-nav-item @(currentPath.StartsWith("/Admin/Dashboard") ? "active" : "")">
                             <i class="bi bi-speedometer2"></i>
                             <span class="sidebar-text">Dashboard</span>
+                        </a>
+                        <a href="/Admin/Newsfeed"
+                           class="admin-nav-item @(currentPath.StartsWith("/Admin/Newsfeed") ? "active" : "")">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                            <span class="sidebar-text">All Posts</span>
                         </a>
                         <a href="/AccountManagement/Index"
                            class="admin-nav-item @(currentPath.StartsWith("/AccountManagement") ? "active" : "")">

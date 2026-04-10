@@ -1,0 +1,467 @@
+﻿@page
+@model Pethub.Pages.Admin.NewsfeedModel
+@{
+    ViewData["Title"] = "Admin Newsfeed";
+    Layout = "_Layout";
+    var successMsg = TempData["Success"] as string;
+}
+
+<link rel="stylesheet" href="~/css/newsfeed.css" />
+
+<div class="admin-topbar d-flex justify-content-between align-items-center">
+    <h4 class="admin-topbar-title mb-0">All Posts</h4>
+    <span class="badge" style="background:#c97b67;color:#fffdf8;font-size:13px;padding:6px 14px;border-radius:20px;">
+        @Model.TotalPosts total posts
+    </span>
+</div>
+
+<div class="admin-table-container">
+
+    @if (!string.IsNullOrEmpty(successMsg))
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4"
+             style="background:#e6f4ea;color:#2e7d32;">
+            <i class="bi bi-check-circle-fill me-2"></i> @successMsg
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Active</div>
+                <div class="fs-3 fw-bold" style="color:#2e7d32;">@Model.ActivePosts</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Reported</div>
+                <div class="fs-3 fw-bold" style="color:#f57f17;">@Model.ReportedPosts</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Removed</div>
+                <div class="fs-3 fw-bold" style="color:#c62828;">@Model.RemovedPosts</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="dash-card p-3 text-center">
+                <div class="text-muted small fw-bold text-uppercase mb-1">Total</div>
+                <div class="fs-3 fw-bold" style="color:#2c1a0e;">@Model.TotalPosts</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-card mb-4 p-3">
+        <form method="get" class="row g-2 align-items-end">
+
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted text-uppercase mb-1">
+                    Search
+                </label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text" style="background:#f5ede0;border-color:#ddd0b8;">
+                        <i class="bi bi-search" style="color:#c97b67;"></i>
+                    </span>
+                    <input type="text"
+                           name="Search"
+                           value="@Model.Search"
+                           class="form-control"
+                           style="border-color:#ddd0b8;"
+                           placeholder="Title, description, author..." />
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted text-uppercase mb-1">
+                    Category
+                </label>
+                <select name="CategoryFilter" class="form-select form-select-sm"
+                        style="border-color:#ddd0b8;">
+                    <option value="All" selected="@(Model.CategoryFilter == "All")">All Categories</option>
+                    <option value="Adoption" selected="@(Model.CategoryFilter == "Adoption")">Adoption</option>
+                    <option value="Lost Pet" selected="@(Model.CategoryFilter == "Lost Pet")">Lost Pet</option>
+                    <option value="For Sale" selected="@(Model.CategoryFilter == "For Sale")">For Sale</option>
+                    <option value="Found Pet" selected="@(Model.CategoryFilter == "Found Pet")">Found Pet</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted text-uppercase mb-1">
+                    Status
+                </label>
+                <select name="StatusFilter" class="form-select form-select-sm"
+                        style="border-color:#ddd0b8;">
+                    <option value="All" selected="@(Model.StatusFilter == "All")">All Statuses</option>
+                    <option value="Active" selected="@(Model.StatusFilter == "Active")">Active</option>
+                    <option value="Reported" selected="@(Model.StatusFilter == "Reported")">Reported</option>
+                    <option value="Removed" selected="@(Model.StatusFilter == "Removed")">Removed</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit"
+                        class="action-btn action-approve w-100"
+                        style="padding:7px 0;font-size:13px;">
+                    Apply
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    @if (!Model.Posts.Any())
+    {
+        <div class="dash-card text-center py-5">
+            <div class="fs-1 mb-2">🐾</div>
+            <div class="text-muted fw-semibold">No posts found matching your filters.</div>
+        </div>
+    }
+    else
+    {
+        <div class="admin-posts-grid">
+            @foreach (var post in Model.Posts)
+            {
+                <div class="admin-post-card dash-card p-0"
+                     data-title="@post.Title"
+                     data-description="@post.Description"
+                     data-category="@post.Category"
+                     data-price="@(post.Price.HasValue && post.Price > 0 ? "₱" + post.Price.Value.ToString("N0") : "Free")"
+                     data-location="@post.Location"
+                     data-author="@post.Account.Username"
+                     data-author-id="@post.AccountId"
+                     data-contact="@post.Account.Contact"
+                     data-address="@post.Account.Address"
+                     data-date="@post.CreatedAt.ToString("MMMM dd, yyyy · hh:mm tt")"
+                     data-image="@post.ImagePath"
+                     data-status="@post.Status"
+                     data-post-id="@post.Id"
+                     onclick="openAdminPostModal(this)"
+                     style="cursor:pointer;">
+
+                    <div class="admin-post-ribbon @RibbonClass(post.Status)">
+                        @post.Status
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(post.ImagePath))
+                    {
+                        <div class="post-img-wrap">
+                            <img src="@post.ImagePath" alt="Post image" loading="lazy" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="post-img-wrap admin-no-image">
+                            <i class="bi bi-image" style="font-size:40px;color:#c9b99a;"></i>
+                        </div>
+                    }
+
+                    <div class="post-card-body p-3">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="post-category-badge @CategoryClass(post.Category)">
+                                @post.Category
+                            </span>
+                            @if (post.Price.HasValue && post.Price > 0)
+                            {
+                                <span class="post-price fw-bold">₱@post.Price.Value.ToString("N0")</span>
+                            }
+                            else
+                            {
+                                <span class="post-free">Free</span>
+                            }
+                        </div>
+
+                        <h5 class="post-title fw-bold mb-1">@post.Title</h5>
+                        <p class="post-desc text-muted small mb-2">@post.Description</p>
+
+                        <div class="post-meta small mb-3">
+                            <span>📍 @post.Location</span>
+                            <span>🐾 @post.Account.Username</span>
+                            <span>🕒 @post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap" onclick="event.stopPropagation();">
+
+                            @if (post.Status != "Removed")
+                            {
+                                <form method="post" asp-page-handler="Censor"
+                                      asp-route-postId="@post.Id"
+                                      onsubmit="return confirm('Censor this post? It will be hidden from the public feed.');">
+                                    <input type="hidden" name="CategoryFilter" value="@Model.CategoryFilter" />
+                                    <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
+                                    <input type="hidden" name="Search" value="@Model.Search" />
+                                    <button type="submit" class="action-btn action-reject"
+                                            style="font-size:12px;padding:5px 12px;">
+                                        <i class="bi bi-eye-slash me-1"></i>Censor
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" asp-page-handler="Restore"
+                                      asp-route-postId="@post.Id"
+                                      onsubmit="return confirm('Restore this post back to Active?');">
+                                    <input type="hidden" name="CategoryFilter" value="@Model.CategoryFilter" />
+                                    <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
+                                    <input type="hidden" name="Search" value="@Model.Search" />
+                                    <button type="submit" class="action-btn action-approve"
+                                            style="font-size:12px;padding:5px 12px;">
+                                        <i class="bi bi-eye me-1"></i>Restore
+                                    </button>
+                                </form>
+                            }
+
+                            <form method="post" asp-page-handler="Delete"
+                                  asp-route-postId="@post.Id"
+                                  onsubmit="return confirm('Permanently delete this post? This cannot be undone.');">
+                                <input type="hidden" name="CategoryFilter" value="@Model.CategoryFilter" />
+                                <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
+                                <input type="hidden" name="Search" value="@Model.Search" />
+                                <button type="submit" class="action-btn"
+                                        style="font-size:12px;padding:5px 12px;
+                                                       background:#1e2125;color:#fffdf8;">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="adminPostDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius:16px;overflow:hidden;">
+
+            <div id="aModalImageWrap"
+                 style="display:none;max-height:320px;overflow:hidden;background:#f0e8da;">
+                <img id="aModalImage" src="" alt=""
+                     style="width:100%;height:320px;object-fit:cover;display:block;" />
+            </div>
+
+            <div class="modal-body p-4">
+
+                {{-- Status badge --}}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="aModalCategory" class="post-category-badge"></span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="aModalStatus" class="badge"></span>
+                        <span id="aModalPrice" class="fw-bold fs-5" style="color:#c97b67;"></span>
+                    </div>
+                </div>
+
+                <h4 id="aModalTitle"
+                    class="fw-bold mb-2"
+                    style="font-family:'Georgia',serif;color:#2c1a0e;"></h4>
+
+                <p id="aModalDescription"
+                   class="mb-3"
+                   style="color:#5a4030;line-height:1.7;font-size:15px;"></p>
+
+                <hr style="border-color:#ddd0b8;" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-geo-alt-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Location</div>
+                                <div id="aModalLocation" class="detail-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-clock-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Posted On</div>
+                                <div id="aModalDate" class="detail-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-person-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Posted By</div>
+                                <a id="aModalAuthorLink" href="#"
+                                   class="detail-value fw-bold"
+                                   style="color:#c97b67;text-decoration:none;"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-telephone-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Contact</div>
+                                <a id="aModalContact" href="#"
+                                   class="detail-value fw-bold"
+                                   style="color:#c97b67;text-decoration:none;"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-chip">
+                            <i class="bi bi-house-fill me-2" style="color:#c97b67;"></i>
+                            <div>
+                                <div class="detail-label">Author's Address</div>
+                                <div id="aModalAddress" class="detail-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap mt-3" id="aModalActions"></div>
+
+            </div>
+
+            <div class="modal-footer"
+                 style="border-top:1px solid #ddd0b8;background:#fffdf8;">
+                <button type="button" class="action-btn action-view"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openAdminPostModal(card) {
+            const d = card.dataset;
+
+            // Image
+            const imgWrap = document.getElementById('aModalImageWrap');
+            const img     = document.getElementById('aModalImage');
+            if (d.image) {
+                img.src = d.image;
+                imgWrap.style.display = '';
+            } else {
+                imgWrap.style.display = 'none';
+            }
+
+            // Category badge
+            const catEl       = document.getElementById('aModalCategory');
+            catEl.textContent = d.category;
+            catEl.className   = 'post-category-badge ' + categoryClass(d.category);
+
+            // Status badge
+            const statusEl       = document.getElementById('aModalStatus');
+            statusEl.textContent = d.status;
+            statusEl.className   = 'badge ' + statusBadgeClass(d.status);
+
+            // Fields
+            document.getElementById('aModalPrice').textContent       = d.price;
+            document.getElementById('aModalTitle').textContent       = d.title;
+            document.getElementById('aModalDescription').textContent = d.description;
+            document.getElementById('aModalLocation').textContent    = d.location;
+            document.getElementById('aModalDate').textContent        = d.date;
+            document.getElementById('aModalAddress').textContent     = d.address;
+
+            // Author
+            const authorLink      = document.getElementById('aModalAuthorLink');
+            authorLink.textContent = d.author;
+            authorLink.href        = '/Profile/View?id=' + d.authorId;
+
+            // Contact
+            const contactEl       = document.getElementById('aModalContact');
+            contactEl.textContent = d.contact;
+            contactEl.href        = 'tel:' + d.contact;
+
+            // Quick actions inside modal (mirrors card buttons)
+            const actionsWrap = document.getElementById('aModalActions');
+            actionsWrap.innerHTML = '';
+
+            if (d.status !== 'Removed') {
+                actionsWrap.innerHTML += `
+                    <form method="post" onsubmit="return confirm('Censor this post?');">
+                        <input type="hidden" name="postId" value="${d.postId}" />
+                        <input type="hidden" name="CategoryFilter"
+                               value="${encodeURIComponent('@Model.CategoryFilter')}" />
+                        <input type="hidden" name="StatusFilter"
+                               value="${encodeURIComponent('@Model.StatusFilter')}" />
+                        <input type="hidden" name="Search"
+                               value="${encodeURIComponent('@Model.Search')}" />
+                        <button type="submit"
+                                formaction="?handler=Censor"
+                                class="action-btn action-reject"
+                                style="font-size:13px;padding:8px 18px;">
+                            <i class="bi bi-eye-slash me-1"></i>Censor
+                        </button>
+                    </form>`;
+            } else {
+                actionsWrap.innerHTML += `
+                    <form method="post" onsubmit="return confirm('Restore this post?');">
+                        <input type="hidden" name="postId" value="${d.postId}" />
+                        <button type="submit"
+                                formaction="?handler=Restore"
+                                class="action-btn action-approve"
+                                style="font-size:13px;padding:8px 18px;">
+                            <i class="bi bi-eye me-1"></i>Restore
+                        </button>
+                    </form>`;
+            }
+
+            actionsWrap.innerHTML += `
+                <form method="post"
+                      onsubmit="return confirm('Permanently delete this post? This cannot be undone.');">
+                    <input type="hidden" name="postId" value="${d.postId}" />
+                    <button type="submit"
+                            formaction="?handler=Delete"
+                            class="action-btn"
+                            style="font-size:13px;padding:8px 18px;
+                                   background:#1e2125;color:#fffdf8;">
+                        <i class="bi bi-trash me-1"></i>Delete Permanently
+                    </button>
+                </form>`;
+
+            bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('adminPostDetailModal')
+            ).show();
+        }
+
+        function categoryClass(cat) {
+            const map = {
+                'Adoption':  'cat-adoption',
+                'Lost Pet':  'cat-lost',
+                'For Sale':  'cat-sale',
+                'Found Pet': 'cat-found'
+            };
+            return map[cat] || '';
+        }
+
+        function statusBadgeClass(status) {
+            if (status === 'Active')   return 'bg-success';
+            if (status === 'Reported') return 'bg-warning text-dark';
+            if (status === 'Removed')  return 'bg-danger';
+            return 'bg-secondary';
+        }
+    </script>
+}
+
+@functions {
+    static string CategoryClass(string c) => c switch
+    {
+        "Adoption" => "cat-adoption",
+        "Lost Pet" => "cat-lost",
+        "For Sale" => "cat-sale",
+        "Found Pet" => "cat-found",
+        _ => ""
+    };
+
+    static string RibbonClass(string s) => s switch
+    {
+        "Active" => "ribbon-active",
+        "Reported" => "ribbon-reported",
+        "Removed" => "ribbon-removed",
+        _ => ""
+    };
+}

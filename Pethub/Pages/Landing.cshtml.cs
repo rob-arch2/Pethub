@@ -25,10 +25,9 @@ namespace Pethub.Pages
             {
                 _logger.LogDebug("LandingModel.OnGetAsync() started - CurrentAccountId={AccountId}", CurrentAccountId);
 
-                // Only show Active and Reported posts — Removed posts are hidden from the public feed
+                // Include ALL statuses now — Removed posts show as censored on the feed
                 Posts = await _context.Post
                     .Include(p => p.Account)
-                    .Where(p => p.Status != "Removed")
                     .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
 
@@ -42,7 +41,6 @@ namespace Pethub.Pages
             }
         }
 
-        // Handles the report modal form — asp-page-handler="Report"
         public async Task<IActionResult> OnPostReportAsync(
             int postId,
             string reasonCategory,
@@ -53,7 +51,6 @@ namespace Pethub.Pages
                 _logger.LogDebug("OnPostReportAsync() started - PostId={PostId}, Reason={Reason}", postId, reasonCategory);
 
                 var reporterId = CurrentAccountId ?? 0;
-                _logger.LogDebug("ReporterId from CurrentAccountId={ReporterId}", reporterId);
 
                 var post = await _context.Post.FindAsync(postId);
                 if (post == null)
@@ -62,36 +59,27 @@ namespace Pethub.Pages
                     return NotFound();
                 }
 
-                // Users cannot report their own posts
                 if (post.AccountId == reporterId)
                 {
-                    _logger.LogWarning("User tried to report own post - PostId={PostId}, ReporterId={ReporterId}", 
-                        postId, reporterId);
                     TempData["Error"] = "You cannot report your own post.";
                     return RedirectToPage();
                 }
 
-                // Each user can only report a given post once
                 bool alreadyReported = await _context.Report
                     .AnyAsync(r => r.PostId == postId && r.ReporterAccountId == reporterId);
 
                 if (alreadyReported)
                 {
-                    _logger.LogWarning("User already reported this post - PostId={PostId}, ReporterId={ReporterId}", 
-                        postId, reporterId);
                     TempData["Error"] = "You have already reported this post.";
                     return RedirectToPage();
                 }
 
-                // Validate reason was provided
                 if (string.IsNullOrWhiteSpace(reasonCategory))
                 {
-                    _logger.LogWarning("Report submitted without reason");
                     TempData["Error"] = "Please select a reason before submitting.";
                     return RedirectToPage();
                 }
 
-                // Create the report record
                 var report = new Report
                 {
                     PostId = postId,
@@ -104,13 +92,10 @@ namespace Pethub.Pages
                 };
                 _context.Report.Add(report);
 
-                // Flag the post so it appears in the admin Reported feed
                 post.Status = "Reported";
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("✓ Post reported successfully - PostId={PostId}, ReporterId={ReporterId}", 
-                    postId, reporterId);
                 TempData["Success"] = "Post reported. Our team will review it shortly.";
                 return RedirectToPage();
             }
