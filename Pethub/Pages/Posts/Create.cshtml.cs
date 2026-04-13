@@ -5,24 +5,31 @@ using Pethub.Models;
 
 namespace Pethub.Pages.Posts
 {
+    // Page for creating a new post
     [RequestSizeLimit(10 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 10 * 1024 * 1024)]
     public class CreateModel : AuthenticatedPageModel
     {
+        // Database context for queries
         private readonly PethubContext _context;
+        // Environment for handling file uploads
         private readonly IWebHostEnvironment _env;
 
+        // Constructor sets up database and environment
         public CreateModel(PethubContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;
         }
 
+        // Post object bound to the form
         [BindProperty]
         public Post Post { get; set; } = default!;
 
+        // Holds error messages for display
         public string? ErrorMessage { get; set; }
 
+        // Checks if banned users are blocked from creating posts
         public async Task<IActionResult> OnGetAsync()
         {
             if (CurrentAccountId.HasValue)
@@ -37,8 +44,10 @@ namespace Pethub.Pages.Posts
             return Page();
         }
 
+        // Handles post creation and image upload
         public async Task<IActionResult> OnPostAsync(IFormFile? imageFile)
         {
+            // Block banned users from posting
             if (CurrentAccountId.HasValue)
             {
                 var account = await _context.Account.FindAsync(CurrentAccountId.Value);
@@ -49,6 +58,7 @@ namespace Pethub.Pages.Posts
                 }
             }
 
+            // Remove auto-managed fields from validation
             ModelState.Remove("Post.Account");
             ModelState.Remove("Post.Reports");
             ModelState.Remove("Post.Status");
@@ -56,6 +66,7 @@ namespace Pethub.Pages.Posts
             ModelState.Remove("Post.ImagePath");
             ModelState.Remove("Post.AccountId");
 
+            // Show errors if validation fails
             if (!ModelState.IsValid)
             {
                 var hiddenErrors = ModelState.Values
@@ -67,14 +78,17 @@ namespace Pethub.Pages.Posts
                 return Page();
             }
 
+            // Handle image upload if provided
             if (imageFile != null && imageFile.Length > 0)
             {
+                // Block files larger than 5 MB
                 if (imageFile.Length > 5 * 1024 * 1024)
                 {
                     ErrorMessage = "Image must be 5 MB or smaller.";
                     return Page();
                 }
 
+                // Allow only specific image formats
                 var allowed = new[] { "image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif" };
                 if (!allowed.Contains(imageFile.ContentType.ToLowerInvariant()))
                 {
@@ -84,6 +98,7 @@ namespace Pethub.Pages.Posts
 
                 try
                 {
+                    // Save image to uploads folder
                     var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                     var uploadsDir = Path.Combine(webRoot, "uploads");
 
@@ -108,14 +123,17 @@ namespace Pethub.Pages.Posts
                 }
             }
 
+            // Set post details before saving
             Post.AccountId = CurrentAccountId ?? 0;
             Post.Status = "Active";
             Post.CreatedAt = DateTime.Now;
 
             try
             {
+                // Save post to database
                 _context.Post.Add(Post);
 
+                // Log the post creation
                 var log = new ActivityLog
                 {
                     AccountId = CurrentAccountId.Value,
@@ -130,10 +148,12 @@ namespace Pethub.Pages.Posts
             }
             catch (Exception ex)
             {
+                // Show error if saving fails
                 ErrorMessage = $"Something went wrong saving your post: {ex.Message}";
                 return Page();
             }
 
+            // Show success message and redirect
             TempData["Success"] = "Your post has been published!";
             return RedirectToPage("/Landing");
         }

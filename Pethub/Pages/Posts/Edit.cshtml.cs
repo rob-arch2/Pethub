@@ -5,24 +5,31 @@ using Pethub.Models;
 
 namespace Pethub.Pages.Posts
 {
+    // Page for editing an existing post
     [RequestSizeLimit(10 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 10 * 1024 * 1024)]
     public class EditModel : AuthenticatedPageModel
     {
+        // Database context for queries
         private readonly PethubContext _context;
+        // Environment for handling file uploads
         private readonly IWebHostEnvironment _env;
 
+        // Constructor sets up database and environment
         public EditModel(PethubContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;
         }
 
+        // Post object bound to the form
         [BindProperty]
         public Post Post { get; set; } = default!;
 
+        // Holds error messages for display
         public string? ErrorMessage { get; set; }
 
+        // Loads the post for editing if it belongs to the current user
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null || !CurrentAccountId.HasValue)
@@ -37,11 +44,13 @@ namespace Pethub.Pages.Posts
             return Page();
         }
 
+        // Handles saving changes to the post
         public async Task<IActionResult> OnPostAsync(IFormFile? imageFile)
         {
             if (!CurrentAccountId.HasValue)
                 return RedirectToPage("/Login");
 
+            // Remove auto-managed fields from validation
             ModelState.Remove("Post.Account");
             ModelState.Remove("Post.Reports");
             ModelState.Remove("Post.Status");
@@ -49,9 +58,9 @@ namespace Pethub.Pages.Posts
             ModelState.Remove("Post.ImagePath");
             ModelState.Remove("Post.AccountId");
 
+            // Show errors if validation fails
             if (!ModelState.IsValid)
             {
-                // Pull exactly what failed so it doesn't fail silently
                 var hiddenErrors = ModelState.Values
                     .SelectMany(v => v.Errors)
                     .Select(e => string.IsNullOrEmpty(e.ErrorMessage) ? e.Exception?.Message : e.ErrorMessage)
@@ -61,24 +70,29 @@ namespace Pethub.Pages.Posts
                 return Page();
             }
 
+            // Find the post to update
             var postToUpdate = await _context.Post.FirstOrDefaultAsync(p => p.Id == Post.Id && p.AccountId == CurrentAccountId.Value);
             if (postToUpdate == null)
                 return RedirectToPage("/UserDashboard/Index");
 
+            // Update post details
             postToUpdate.Title = Post.Title;
             postToUpdate.Description = Post.Description;
             postToUpdate.Category = Post.Category;
             postToUpdate.Price = Post.Price;
-            postToUpdate.Location = Post.Location; // NEW: Save the location!
+            postToUpdate.Location = Post.Location;
 
+            // Handle image upload if provided
             if (imageFile != null && imageFile.Length > 0)
             {
+                // Block files larger than 5 MB
                 if (imageFile.Length > 5 * 1024 * 1024)
                 {
                     ErrorMessage = "Image must be 5 MB or smaller.";
                     return Page();
                 }
 
+                // Allow only specific image formats
                 var allowed = new[] { "image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif" };
                 if (!allowed.Contains(imageFile.ContentType.ToLowerInvariant()))
                 {
@@ -88,6 +102,7 @@ namespace Pethub.Pages.Posts
 
                 try
                 {
+                    // Save new image and delete old one if it exists
                     var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                     var uploadsDir = Path.Combine(webRoot, "uploads");
                     if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
@@ -118,6 +133,7 @@ namespace Pethub.Pages.Posts
                 }
             }
 
+            // Log the edit action
             var log = new ActivityLog
             {
                 AccountId = CurrentAccountId.Value,
@@ -130,12 +146,14 @@ namespace Pethub.Pages.Posts
 
             try
             {
+                // Save changes to database
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Your post has been updated!";
                 return RedirectToPage("/UserDashboard/Index");
             }
             catch (Exception ex)
             {
+                // Show error if saving fails
                 ErrorMessage = $"Something went wrong saving your post: {ex.Message}";
                 return Page();
             }

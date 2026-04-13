@@ -5,82 +5,91 @@ using Pethub.Data; // <-- Added to access PethubContext
 
 namespace Pethub.Models
 {
-    // Any page that needs a logged-in user should inherit this instead of PageModel.
-    // It auto-redirects to Login if there's no active session — no need to repeat the check on every page.
+    // Base class for pages that require a logged-in user
     public abstract class AuthenticatedPageModel : PageModel
     {
+        // Logger for tracking activity and errors
         protected ILogger<AuthenticatedPageModel>? Logger { get; set; }
 
-        // Publicly expose the current account id for use in page models and Razor views
+        // Current account ID from session
         public int? CurrentAccountId
         {
             get
             {
                 try
                 {
+                    // Return null if HttpContext is missing
                     if (HttpContext == null)
                     {
                         Logger?.LogWarning("AuthenticatedPageModel: HttpContext is null");
                         return null;
                     }
 
+                    // Return null if Session is missing
                     if (HttpContext.Session == null)
                     {
                         Logger?.LogWarning("AuthenticatedPageModel: HttpContext.Session is null");
                         return null;
                     }
 
+                    // Get account ID from session
                     var accountId = HttpContext.Session.GetInt32("AccountId");
                     Logger?.LogDebug("AuthenticatedPageModel: CurrentAccountId retrieved = {AccountId}", accountId);
                     return accountId;
                 }
                 catch (Exception ex)
                 {
+                    // Log error if something goes wrong
                     Logger?.LogError(ex, "AuthenticatedPageModel: Exception in CurrentAccountId getter");
                     return null;
                 }
             }
         }
 
-        // Backwards-compatible protected alias used across existing page models
+        // Shortcut alias for account ID
         protected int? AccountId => CurrentAccountId;
 
-        // Public username for display in views
+        // Current username from session
         public string? AccountUsername
         {
             get
             {
                 try
                 {
+                    // Return null if HttpContext is missing
                     if (HttpContext == null)
                     {
                         Logger?.LogWarning("AuthenticatedPageModel: HttpContext is null when getting AccountUsername");
                         return null;
                     }
 
+                    // Return null if Session is missing
                     if (HttpContext.Session == null)
                     {
                         Logger?.LogWarning("AuthenticatedPageModel: HttpContext.Session is null when getting AccountUsername");
                         return null;
                     }
 
+                    // Get username from session
                     var username = HttpContext.Session.GetString("AccountUsername");
                     Logger?.LogDebug("AuthenticatedPageModel: AccountUsername retrieved = {Username}", username ?? "null");
                     return username;
                 }
                 catch (Exception ex)
                 {
+                    // Log error if something goes wrong
                     Logger?.LogError(ex, "AuthenticatedPageModel: Exception in AccountUsername getter");
                     return null;
                 }
             }
         }
 
+        // Runs before the page handler executes
         public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
         {
             try
             {
-                // Try to get a logger from HttpContext for debugging
+                // Create a temporary logger for debugging
                 var loggerFactory = HttpContext?.RequestServices?.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
                 var debugLogger = loggerFactory?.CreateLogger("AuthenticatedPageModel");
                 debugLogger?.LogInformation("🔍 [AuthCheck-START] OnPageHandlerExecuting for page {PageName} handler {Handler} method {Method}",
@@ -88,17 +97,18 @@ namespace Pethub.Models
                     context?.HandlerMethod?.Name ?? "unknown",
                     HttpContext?.Request?.Method ?? "unknown");
 
+                // Log that the check has started
                 Logger?.LogDebug("AuthenticatedPageModel: OnPageHandlerExecuting started for page {PageName}",
                     context!.RouteData.Values["page"]);
 
-                // Guard: check if context is null
+                // Stop if context is missing
                 if (context == null)
                 {
                     Logger?.LogError("AuthenticatedPageModel: PageHandlerExecutingContext is null");
                     return;
                 }
 
-                // Guard: check if HttpContext exists
+                // Stop if HttpContext is missing
                 if (HttpContext == null)
                 {
                     Logger?.LogError("AuthenticatedPageModel: HttpContext is null, cannot authenticate user");
@@ -106,7 +116,7 @@ namespace Pethub.Models
                     return;
                 }
 
-                // Guard: check if Session exists
+                // Stop if Session is missing
                 if (HttpContext.Session == null)
                 {
                     Logger?.LogError("AuthenticatedPageModel: Session middleware not configured or disabled");
@@ -114,9 +124,10 @@ namespace Pethub.Models
                     return;
                 }
 
-                // Check if user is authenticated
+                // Get account ID from session
                 int? accountId = HttpContext.Session.GetInt32("AccountId");
 
+                // Redirect if no valid account ID
                 if (accountId == null || accountId == 0)
                 {
                     Logger?.LogWarning("AuthenticatedPageModel: No valid session found, redirecting to Login");
@@ -124,9 +135,7 @@ namespace Pethub.Models
                     return;
                 }
 
-                // ====================================================================
-                // ── NEW: INSTANT BAN ENFORCER ───────────────────────────────────────
-                // ====================================================================
+                // Check if user is banned
                 var dbContext = HttpContext.RequestServices.GetService(typeof(PethubContext)) as PethubContext;
                 if (dbContext != null)
                 {
@@ -139,8 +148,8 @@ namespace Pethub.Models
                         return;
                     }
                 }
-                // ====================================================================
 
+                // Allow access if authenticated and not banned
                 Logger?.LogDebug("AuthenticatedPageModel: User authenticated with AccountId = {AccountId}", accountId);
                 debugLogger?.LogInformation("🔍 [AuthCheck-PASS] Authentication successful, AccountId={AccountId}", accountId);
                 base.OnPageHandlerExecuting(context);
@@ -148,7 +157,8 @@ namespace Pethub.Models
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "  [AuthCheck-FAILED] Exception in OnPageHandlerExecuting: {ExceptionType}", ex.GetType().Name);
+                // Redirect to login if an error happens
+                Logger?.LogError(ex, "❌ [AuthCheck-FAILED] Exception in OnPageHandlerExecuting: {ExceptionType}", ex.GetType().Name);
                 Logger?.LogError("Stack trace: {StackTrace}", ex.StackTrace);
                 context.Result = RedirectToPage("/Login");
             }

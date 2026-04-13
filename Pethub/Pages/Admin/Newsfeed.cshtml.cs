@@ -5,64 +5,75 @@ using Pethub.Models;
 
 namespace Pethub.Pages.Admin
 {
+    // Admin page for managing posts in the newsfeed
     public class NewsfeedModel : AdminPageModel
     {
+        // Database context for queries
         private readonly PethubContext _context;
+        // Environment for handling files
         private readonly IWebHostEnvironment _env;
 
+        // Constructor sets up database and environment
         public NewsfeedModel(PethubContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;
         }
 
+        // List of posts to display
         public IList<Post> Posts { get; set; } = new List<Post>();
 
+        // Filter for category
         [BindProperty(SupportsGet = true)]
         public string CategoryFilter { get; set; } = "All";
 
+        // Filter for status
         [BindProperty(SupportsGet = true)]
         public string StatusFilter { get; set; } = "All";
 
+        // Search keyword
         [BindProperty(SupportsGet = true)]
         public string Search { get; set; } = string.Empty;
 
+        // Summary counts for posts
         public int TotalPosts { get; set; }
         public int ActivePosts { get; set; }
         public int ReportedPosts { get; set; }
         public int RemovedPosts { get; set; }
 
+        // Loads posts with filters and summary counts
         public async Task OnGetAsync()
         {
             var query = _context.Post
                 .Include(p => p.Account)
                 .AsQueryable();
 
-            // Category filter
+            // Apply category filter
             if (CategoryFilter != "All")
                 query = query.Where(p => p.Category == CategoryFilter);
 
-            // Status filter
+            // Apply status filter
             if (StatusFilter != "All")
                 query = query.Where(p => p.Status == StatusFilter);
 
-            // Search
+            // Apply search filter
             if (!string.IsNullOrWhiteSpace(Search))
                 query = query.Where(p =>
                     p.Title.Contains(Search) ||
                     p.Description.Contains(Search) ||
                     p.Account.Username.Contains(Search));
 
+            // Get filtered posts
             Posts = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
 
-            // Summary counts (always unfiltered)
+            // Get summary counts without filters
             TotalPosts = await _context.Post.CountAsync();
             ActivePosts = await _context.Post.CountAsync(p => p.Status == "Active");
             ReportedPosts = await _context.Post.CountAsync(p => p.Status == "Reported");
             RemovedPosts = await _context.Post.CountAsync(p => p.Status == "Removed");
         }
 
-        // ── Censor: marks post as Removed without deleting it ────────
+        // Marks a post as Removed without deleting it
         public async Task<IActionResult> OnPostCensorAsync(int postId)
         {
             var post = await _context.Post
@@ -73,6 +84,7 @@ namespace Pethub.Pages.Admin
             {
                 post.Status = "Removed";
 
+                // Log the censor action
                 _context.ActivityLog.Add(new ActivityLog
                 {
                     AccountId = null,
@@ -89,7 +101,7 @@ namespace Pethub.Pages.Admin
             return RedirectToPage(new { CategoryFilter, StatusFilter, Search });
         }
 
-        // ── Restore: brings a censored post back to Active ────────────
+        // Restores a censored post back to Active
         public async Task<IActionResult> OnPostRestoreAsync(int postId)
         {
             var post = await _context.Post
@@ -100,6 +112,7 @@ namespace Pethub.Pages.Admin
             {
                 post.Status = "Active";
 
+                // Log the restore action
                 _context.ActivityLog.Add(new ActivityLog
                 {
                     AccountId = null,
@@ -116,7 +129,7 @@ namespace Pethub.Pages.Admin
             return RedirectToPage(new { CategoryFilter, StatusFilter, Search });
         }
 
-        // ── Hard delete: permanently removes the post ─────────────────
+        // Permanently deletes a post and its image file
         public async Task<IActionResult> OnPostDeleteAsync(int postId)
         {
             var post = await _context.Post
@@ -125,7 +138,7 @@ namespace Pethub.Pages.Admin
 
             if (post != null)
             {
-                // Delete physical image file if it exists
+                // Delete image file if it exists
                 if (!string.IsNullOrEmpty(post.ImagePath))
                 {
                     var webRoot = _env.WebRootPath
@@ -140,8 +153,10 @@ namespace Pethub.Pages.Admin
                 string title = post.Title;
                 string username = post.Account.Username;
 
+                // Remove post from database
                 _context.Post.Remove(post);
 
+                // Log the delete action
                 _context.ActivityLog.Add(new ActivityLog
                 {
                     AccountId = null,

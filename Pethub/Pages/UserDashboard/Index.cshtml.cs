@@ -5,12 +5,17 @@ using Pethub.Models;
 
 namespace Pethub.Pages.UserDashboard
 {
+    // Page for showing a user’s dashboard with their posts and pets
     public class IndexModel : AuthenticatedPageModel
     {
+        // Database context for queries
         private readonly PethubContext _context;
+        // Logger for tracking activity
         private readonly ILogger<IndexModel> _logger;
+        // Environment for handling file paths
         private readonly IWebHostEnvironment _env;
 
+        // Constructor sets up database, logger, and environment
         public IndexModel(PethubContext context, ILogger<IndexModel> logger, IWebHostEnvironment env)
         {
             _context = context;
@@ -18,10 +23,14 @@ namespace Pethub.Pages.UserDashboard
             _env = env;
         }
 
+        // Current user account
         public Account Account { get; set; } = default!;
+        // Posts created by the user
         public List<Post> UserPosts { get; set; } = new();
+        // Pets owned by the user
         public List<Pet> MyPets { get; set; } = new();
 
+        // Loads account, posts, and pets for the dashboard
         public async Task<IActionResult> OnGetAsync()
         {
             try
@@ -32,11 +41,13 @@ namespace Pethub.Pages.UserDashboard
 
                 Account = account;
 
+                // Get posts by the user
                 UserPosts = await _context.Post
                     .Where(p => p.AccountId == id)
                     .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
 
+                // Get pets owned by the user
                 MyPets = await _context.Pet
                     .Where(p => p.AccountId == id)
                     .ToListAsync();
@@ -49,6 +60,7 @@ namespace Pethub.Pages.UserDashboard
             }
         }
 
+        // Deletes a post owned by the user
         public async Task<IActionResult> OnPostDeletePostAsync(int postId)
         {
             if (!CurrentAccountId.HasValue) return RedirectToPage("/Login");
@@ -57,6 +69,7 @@ namespace Pethub.Pages.UserDashboard
 
             if (post != null)
             {
+                // Delete image file if it exists
                 if (!string.IsNullOrEmpty(post.ImagePath))
                 {
                     var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
@@ -69,8 +82,10 @@ namespace Pethub.Pages.UserDashboard
                     }
                 }
 
+                // Remove post from database
                 _context.Post.Remove(post);
 
+                // Log the delete action
                 var log = new ActivityLog
                 {
                     AccountId = CurrentAccountId.Value,
